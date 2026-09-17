@@ -110,6 +110,7 @@
     border: 2px solid #3a3f4a;
     position: relative;
     background: radial-gradient(circle at center, #1a1d24 0%, #14161b 100%);
+    transition: border-color 0.5s ease, box-shadow 0.5s ease;
   }
   .tick {
     position: absolute;
@@ -320,6 +321,8 @@
     text-align: left;
     width: 100%;
     box-sizing: border-box;
+    opacity: 1;
+    transition: opacity 0.6s ease;
   }
   .calibration-tip span {
     flex: 1;
@@ -334,12 +337,27 @@
     cursor: pointer;
     padding: 2px 4px;
   }
-  .disclaimer {
-    margin-top: 14px;
+  .info-btn {
+    margin-top: 12px;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 4px;
+  }
+  .info-popover {
+    margin-top: 6px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
     font-size: 11px;
     line-height: 1.5;
-    color: #6b7280;
-    text-align: center;
+    color: #9aa0a8;
+    text-align: left;
   }
 </style>
 </head>
@@ -363,6 +381,12 @@
     <div id="heading">--°</div>
     <div id="direction">--</div>
 
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Best</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#facc15"></span>Okay</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Avoid</div>
+    </div>
+
     <div id="calibrationTip" class="calibration-tip">
       <span>If the heading looks off, wave your phone in a slow figure-8 to calibrate the compass.</span>
       <button id="calibrationTipDismiss" aria-label="Dismiss">&times;</button>
@@ -373,7 +397,8 @@
       <button class="seg-btn" data-profile="vastu_shastra">Classical Vastu</button>
     </div>
 
-    <p class="disclaimer">Isha/Sadhguru practices and Classical Vastu Shastra offer differing sleep-direction guidance — this app is for personal exploration, not medical or scientific advice.</p>
+    <button id="infoBtn" class="info-btn" aria-expanded="false">About this app</button>
+    <div id="infoPopover" class="info-popover" hidden>Isha/Sadhguru practices and Classical Vastu Shastra offer differing sleep-direction guidance — this app is for personal exploration, not medical or scientific advice.</div>
 
     <label class="checkbox-row">
       <input type="checkbox" id="southernHemisphere">
@@ -386,12 +411,6 @@
       <div id="ratingOctant" class="rating-octant">&nbsp;</div>
       <div class="score-bar"><div id="ratingScoreFill" class="score-fill"></div></div>
       <div id="ratingReason" class="rating-reason"></div>
-    </div>
-
-    <div class="legend">
-      <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Best</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#facc15"></span>Okay</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Avoid</div>
     </div>
 
     <button id="restartBtn">Restart</button>
@@ -580,15 +599,46 @@
   const calibrationTip = document.getElementById('calibrationTip');
   const calibrationTipDismiss = document.getElementById('calibrationTipDismiss');
 
-  calibrationTipDismiss.addEventListener('click', () => {
-    calibrationTip.classList.remove('visible');
-    calibrationTip.style.display = 'none';
-    try {
-      localStorage.setItem(CALIBRATION_TIP_KEY, 'true');
-    } catch (e) {
-      // ignore — not required for the app to work
+  // Fades the tip out; `persist: true` (manual X) means "never show again",
+  // while the automatic timeout just clears it for this viewing.
+  function hideCalibrationTip({ persist } = {}) {
+    calibrationTip.style.opacity = '0';
+    setTimeout(() => {
+      calibrationTip.style.display = 'none';
+    }, 600);
+    if (persist) {
+      try {
+        localStorage.setItem(CALIBRATION_TIP_KEY, 'true');
+      } catch (e) {
+        // ignore — not required for the app to work
+      }
     }
+  }
+
+  calibrationTipDismiss.addEventListener('click', () => hideCalibrationTip({ persist: true }));
+
+  // Small "About this app" popover, collapsed by default so it doesn't
+  // eat vertical space above the rating card.
+  const infoBtn = document.getElementById('infoBtn');
+  const infoPopover = document.getElementById('infoPopover');
+  infoBtn.addEventListener('click', () => {
+    const opening = infoPopover.hasAttribute('hidden');
+    if (opening) {
+      infoPopover.removeAttribute('hidden');
+    } else {
+      infoPopover.setAttribute('hidden', '');
+    }
+    infoBtn.setAttribute('aria-expanded', String(opening));
   });
+
+  // hex (#rrggbb) -> rgba(...) string, so the ring glow can use the same
+  // rating colors at a soft opacity instead of a harsh solid shadow.
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
 
   // Remember the last-picked profile + hemisphere setting on this phone so
   // you don't have to re-tap them every night. Wrapped in try/catch since
@@ -654,6 +704,8 @@
     ratingScoreFill.style.background = color;
 
     headingEl.style.color = color;
+    rose.style.borderColor = color;
+    rose.style.boxShadow = `0 0 22px 3px ${hexToRgba(color, 0.35)}, inset 0 0 34px ${hexToRgba(color, 0.14)}`;
   }
 
   document.querySelectorAll('.seg-btn').forEach((btn) => {
@@ -757,6 +809,8 @@
       }
       if (!dismissedBefore) {
         calibrationTip.style.display = 'flex';
+        calibrationTip.style.opacity = '1';
+        setTimeout(() => hideCalibrationTip({ persist: false }), 6000);
       }
     }
 
