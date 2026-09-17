@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111318">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sleep Compass">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMjgiIGZpbGw9IiMxMTEzMTgiIHN0cm9rZT0iIzRmN2NmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIzMiwxMCAzOCwzMiAzMiw1NCAyNiwzMiIgZmlsbD0iIzRmN2NmZiIvPgogIDxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjQiIGZpbGw9IiNmNWY1ZjUiLz4KPC9zdmc+">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMjgiIGZpbGw9IiMxMTEzMTgiIHN0cm9rZT0iIzRmN2NmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIzMiwxMCAzOCwzMiAzMiw1NCAyNiwzMiIgZmlsbD0iIzRmN2NmZiIvPgogIDxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjQiIGZpbGw9IiNmNWY1ZjUiLz4KPC9zdmc+">
+<title>Sleep Compass — V1</title>
+<style>
+  :root {
+    color-scheme: dark;
+  }
+  html {
+    background: #111318;
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: transparent;
+    color: #eaeaea;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    text-align: center;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  .ring-art-wrap {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .ring-art {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
+  .ring-art.active {
+    opacity: 1;
+  }
+  .ring-art-isha {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iaXNoYUdsb3ciIGN4PSI1MCUiIGN5PSI0MiUiIHI9IjYwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM0ZjZmZmYiIHN0b3Atb3BhY2l0eT0iMC4zNSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjU1JSIgc3RvcC1jb2xvcj0iIzJhM2E3YSIgc3RvcC1vcGFjaXR5PSIwLjEyIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzExMTMxOCIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0idXJsKCNpc2hhR2xvdykiLz4KICA8IS0tIHJpc2luZyBlbmVyZ3kgbGluZXMgYWJvdmUgdGhlIGhlYWQgLS0+CiAgPGcgc3Ryb2tlPSIjOWRiNGZmIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+CiAgICA8cGF0aCBkPSJNMTcwIDE1MCBRMTY1IDExMCAxODAgODAiLz4KICAgIDxwYXRoIGQ9Ik0yMDAgMTQ4IFEyMDAgMTAwIDIwMCA2NSIvPgogICAgPHBhdGggZD0iTTIzMCAxNTAgUTIzNSAxMTAgMjIwIDgwIi8+CiAgPC9nPgogIDwhLS0gaGVhZCArIHRoaXJkIGV5ZSAtLT4KICA8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxOTAiIHI9IjM0IiBmaWxsPSIjYzlkNGZmIiBvcGFjaXR5PSIwLjIyIi8+CiAgPGNpcmNsZSBjeD0iMjAwIiBjeT0iMTg2IiByPSIzIiBmaWxsPSIjZGZlNmZmIiBvcGFjaXR5PSIwLjUiLz4KICA8IS0tIHNob3VsZGVycyAvIHRvcnNvIC0tPgogIDxwYXRoIGQ9Ik0xNTAgMjYwIFExNTAgMjE0IDIwMCAyMTQgUTI1MCAyMTQgMjUwIDI2MCBMMjUwIDMwMCBMMTUwIDMwMCBaIiBmaWxsPSIjYzlkNGZmIiBvcGFjaXR5PSIwLjIwIi8+CiAgPCEtLSBjcm9zc2VkIGxlZ3MgKG1lZGl0YXRpb24gc2VhdCkgLS0+CiAgPHBhdGggZD0iTTExMCAzMjAgUTE0MCAyODUgMjAwIDI4OCBRMjYwIDI4NSAyOTAgMzIwIFEyNjAgMzQwIDIwMCAzMzYgUTE0MCAzNDAgMTEwIDMyMCBaIiBmaWxsPSIjYzlkNGZmIiBvcGFjaXR5PSIwLjE4Ii8+CiAgPCEtLSByZXN0aW5nIGhhbmRzIC0tPgogIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjMwNCIgcj0iMTAiIGZpbGw9IiNjOWQ0ZmYiIG9wYWNpdHk9IjAuMjAiLz4KICA8Y2lyY2xlIGN4PSIyNTAiIGN5PSIzMDQiIHI9IjEwIiBmaWxsPSIjYzlkNGZmIiBvcGFjaXR5PSIwLjIwIi8+CiAgPCEtLSBzbWFsbCBPbSBtYXJrIGF0IHRoZSBoZWFydC9jaGVzdCBjZW50ZXIsIG5vdCB0aGUgZ2lhbnQgd2F0ZXJtYXJrIC0tPgogIDx0ZXh0IHg9IjIwMCIgeT0iMjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmb250LXNpemU9IjQwIiBmaWxsPSIjYzlkOGZmIiBvcGFjaXR5PSIwLjU1IiBmb250LWZhbWlseT0ic2VyaWYiPuClkDwvdGV4dD4KPC9zdmc+");
+  }
+  .ring-art-vastu {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0idmFzdHVHbG93IiBjeD0iNTAlIiBjeT0iNTAlIiByPSI2MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZmZiNDU0IiBzdG9wLW9wYWNpdHk9IjAuMzAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1NSUiIHN0b3AtY29sb3I9IiM3YTVhMmEiIHN0b3Atb3BhY2l0eT0iMC4xMCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxMTEzMTgiIHN0b3Atb3BhY2l0eT0iMCIvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9InVybCgjdmFzdHVHbG93KSIvPgogIDxnIHN0cm9rZT0iI2ZmY2Q4YSIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iMC4yMiI+CiAgICA8Y2lyY2xlIGN4PSIyMDAiIGN5PSIyMDAiIHI9IjE1MCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICAgIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMTE1IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPGNpcmNsZSBjeD0iMjAwIiBjeT0iMjAwIiByPSI4MCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICAgIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iNDUiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPC9nPgogIDwhLS0gdmFzdHUtcHVydXNoYS1tYW5kYWxhIHN0eWxlIGdyaWQsIGluc2NyaWJlZCBzcXVhcmUgKHN0YXRpYywgZG9lcyBub3Qgcm90YXRlKSAtLT4KICA8ZyBzdHJva2U9IiNmZmNkOGEiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC4xOCI+CiAgICA8cmVjdCB4PSIxMjAiIHk9IjEyMCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiLz4KICAgIDxsaW5lIHgxPSIxMjAiIHkxPSIxNzMiIHgyPSIyODAiIHkyPSIxNzMiLz4KICAgIDxsaW5lIHgxPSIxMjAiIHkxPSIyMjciIHgyPSIyODAiIHkyPSIyMjciLz4KICAgIDxsaW5lIHgxPSIxNzMiIHkxPSIxMjAiIHgyPSIxNzMiIHkyPSIyODAiLz4KICAgIDxsaW5lIHgxPSIyMjciIHkxPSIxMjAiIHgyPSIyMjciIHkyPSIyODAiLz4KICA8L2c+CiAgPGNpcmNsZSBjeD0iMjAwIiBjeT0iMjAwIiByPSI1IiBmaWxsPSIjZmZlM2IwIiBvcGFjaXR5PSIwLjQiLz4KPC9zdmc+");
+  }
+  .vastu-petal {
+    position: absolute;
+    width: 15px;
+    height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(255, 205, 138, 0.55) 0%, rgba(255, 205, 138, 0.18) 70%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+  .vastu-petal.active {
+    opacity: 1;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #f5f5f5;
+  }
+  p.subtitle {
+    margin-top: 0;
+    color: #9aa0a8;
+    font-size: 14px;
+  }
+  #startBtn {
+    margin-top: 24px;
+    padding: 14px 28px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    background: #4f7cff;
+    color: white;
+    cursor: pointer;
+  }
+  #startBtn:active {
+    background: #3d63d6;
+  }
+  #compassWrap {
+    display: none;
+    margin-top: 24px;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 360px;
+  }
+  #rose {
+    width: 270px;
+    height: 270px;
+    border-radius: 50%;
+    border: 2px solid #3a3f4a;
+    position: relative;
+    background: radial-gradient(circle at center, #1a1d24 0%, #14161b 100%);
+  }
+  .tick {
+    position: absolute;
+    width: 2px;
+    height: 12px;
+    background: #4a4f5a;
+  }
+  .tick.major {
+    height: 18px;
+    background: #6b7280;
+    width: 3px;
+  }
+  .label {
+    position: absolute;
+    font-size: 16px;
+    font-weight: 700;
+    color: #c7cad1;
+  }
+  #dial {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.15s ease-out;
+  }
+  .tick.tick-north {
+    background: #4f7cff;
+    width: 4px;
+    height: 22px;
+  }
+  #fixedMarker {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 13px solid #f5f5f5;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+  }
+  #centerDot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: #4f7cff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+  #heading {
+    margin-top: 20px;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    transition: color 0.2s ease;
+  }
+  #direction {
+    font-size: 18px;
+    color: #9aa0a8;
+    margin-top: 4px;
+  }
+  #status {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #ff8a8a;
+    max-width: 320px;
+  }
+
+  /* --- Step 3: rating profile UI --- */
+  .segmented {
+    display: flex;
+    margin-top: 28px;
+    background: rgba(26, 29, 36, 0.6);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 4px;
+    width: 100%;
+  }
+  .seg-btn {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #9aa0a8;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .seg-btn.active {
+    background: #4f7cff;
+    color: white;
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: #9aa0a8;
+    text-align: left;
+    width: 100%;
+  }
+  .checkbox-row .hint {
+    color: #6b7280;
+  }
+  .rating-card {
+    margin-top: 20px;
+    width: 100%;
+    background: rgba(26, 29, 36, 0.6);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .rating-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: #3a3f4a;
+    color: #eaeaea;
+  }
+  .rating-title {
+    margin-top: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f5f5f5;
+  }
+  .rating-octant {
+    margin-top: 2px;
+    font-size: 13px;
+    color: #9aa0a8;
+  }
+  .score-bar {
+    margin-top: 14px;
+    height: 8px;
+    border-radius: 999px;
+    background: #2a2e37;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    width: 0%;
+    background: #4f7cff;
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+  .rating-reason {
+    margin-top: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #b6bac2;
+    text-align: left;
+  }
+  .legend {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    font-size: 12px;
+    color: #9aa0a8;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  #restartBtn {
+    margin-top: 18px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    color: #9aa0a8;
+    cursor: pointer;
+  }
+  #restartBtn:active {
+    background: rgba(255, 255, 255, 0.09);
+  }
+  .calibration-tip {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(79, 124, 255, 0.12);
+    border: 1px solid rgba(79, 124, 255, 0.3);
+    border-radius: 10px;
+    font-size: 12px;
+    color: #b8c6ff;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .calibration-tip span {
+    flex: 1;
+  }
+  .calibration-tip button {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: #b8c6ff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .disclaimer {
+    margin-top: 14px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #6b7280;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Sleep Compass</h1>
+  <p class="subtitle">Lay the phone flat, top edge pointing where your head will point</p>
+
+  <button id="startBtn">Enable Compass</button>
+
+  <div id="compassWrap">
+    <div id="rose">
+      <div class="ring-art-wrap">
+        <div id="artIsha" class="ring-art ring-art-isha active"></div>
+        <div id="artVastu" class="ring-art ring-art-vastu"></div>
+      </div>
+      <div id="dial"></div>
+      <div id="fixedMarker"></div>
+      <div id="centerDot"></div>
+    </div>
+    <div id="heading">--°</div>
+    <div id="direction">--</div>
+
+    <div id="calibrationTip" class="calibration-tip">
+      <span>If the heading looks off, wave your phone in a slow figure-8 to calibrate the compass.</span>
+      <button id="calibrationTipDismiss" aria-label="Dismiss">&times;</button>
+    </div>
+
+    <div id="profileToggle" class="segmented">
+      <button class="seg-btn active" data-profile="isha_sadhguru">Isha / Sadhguru</button>
+      <button class="seg-btn" data-profile="vastu_shastra">Classical Vastu</button>
+    </div>
+
+    <p class="disclaimer">Isha/Sadhguru practices and Classical Vastu Shastra offer differing sleep-direction guidance — this app is for personal exploration, not medical or scientific advice.</p>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="southernHemisphere">
+      Southern Hemisphere <span class="hint">(swaps N/S — Isha/Sadhguru only)</span>
+    </label>
+
+    <div class="rating-card">
+      <div id="ratingBadge" class="rating-badge">--</div>
+      <div id="ratingTitle" class="rating-title">Enable the compass to see your rating</div>
+      <div id="ratingOctant" class="rating-octant">&nbsp;</div>
+      <div class="score-bar"><div id="ratingScoreFill" class="score-fill"></div></div>
+      <div id="ratingReason" class="rating-reason"></div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Best</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#facc15"></span>Okay</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Avoid</div>
+    </div>
+
+    <button id="restartBtn">Restart</button>
+  </div>
+
+  <div id="status"></div>
+
+<script>
+  // ============================================================
+  // Step 2: compass rose UI setup (ticks, cardinal labels)
+  // ============================================================
+  const rose = document.getElementById('rose');
+  const dial = document.getElementById('dial');
+  const cardinals = [
+    { deg: 0,   label: 'N' },
+    { deg: 90,  label: 'E' },
+    { deg: 180, label: 'S' },
+    { deg: 270, label: 'W' }
+  ];
+  const vastuPetals = [];
+  for (let deg = 0; deg < 360; deg += 22.5) {
+    const rad = (deg - 90) * (Math.PI / 180);
+    const tickRadius = 118; // near the 135px ring radius, leaves clear margin from the border
+    const tx = 135 + tickRadius * Math.cos(rad);
+    const ty = 135 + tickRadius * Math.sin(rad);
+
+    // Vastu mandala petal (only at the 8 principal points) — appended first so
+    // it paints behind the tick, and rotates rigidly with it since both live
+    // inside #dial and share the same tick position/orientation.
+    if (deg % 45 === 0) {
+      const petal = document.createElement('div');
+      petal.className = 'vastu-petal';
+      petal.style.left = `${tx}px`;
+      petal.style.top = `${ty}px`;
+      petal.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
+      dial.appendChild(petal);
+      vastuPetals.push(petal);
+    }
+
+    const tick = document.createElement('div');
+    const isMajor = deg % 90 === 0;
+    tick.className = 'tick' + (isMajor ? ' major' : '') + (deg === 0 ? ' tick-north' : '');
+    tick.style.left = `${tx}px`;
+    tick.style.top = `${ty}px`;
+    tick.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
+    dial.appendChild(tick);
+  }
+  const cardinalLabels = [];
+  cardinals.forEach(({ deg, label }) => {
+    const el = document.createElement('div');
+    el.className = 'label';
+    el.textContent = label;
+    const rad = (deg - 90) * (Math.PI / 180);
+    const radius = 92; // pulled in from the ticks so letters don't sit flush against them
+    const x = 135 + radius * Math.cos(rad);
+    const y = 135 + radius * Math.sin(rad);
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.transform = 'translate(-50%, -50%)';
+    dial.appendChild(el);
+    cardinalLabels.push(el);
+  });
+
+  const startBtn = document.getElementById('startBtn');
+  const compassWrap = document.getElementById('compassWrap');
+  const headingEl = document.getElementById('heading');
+  const directionEl = document.getElementById('direction');
+  const statusEl = document.getElementById('status');
+
+  function degToCompassPoint(deg) {
+    const points = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+    const index = Math.round(deg / 22.5) % 16;
+    return points[index];
+  }
+
+  // ============================================================
+  // Step 3: sleep-direction rating engine
+  // Two independent rule sets (profiles), each mapping one of the
+  // 8 compass octants to a rating/score/explanation. Ranges match
+  // the standard 22.5°-wide octant convention, centered on each
+  // cardinal/intercardinal point (e.g. East = 67.5°-112.5°).
+  // ============================================================
+  const RATING_COLORS = {
+    GREEN: '#4ade80',
+    YELLOW: '#facc15',
+    RED: '#f87171'
+  };
+
+  const OCTANT_LABELS = {
+    N: 'North', NE: 'North-East', E: 'East', SE: 'South-East',
+    S: 'South', SW: 'South-West', W: 'West', NW: 'North-West'
+  };
+
+  const PROFILES = {
+    isha_sadhguru: {
+      label: 'Isha / Sadhguru',
+      // Only this profile has a documented hemisphere invariant:
+      // south of the equator, North and South ratings swap.
+      hemisphereSwap: { N: 'S', S: 'N' },
+      rules: {
+        N:  { rating: 'RED',    score: 0,   title: 'Strictly Prohibited',
+              reason: 'Magnetic repulsion pulls iron-rich blood toward the brain — micro-circulation stress, restless sleep, nightmares, and elevated cardiovascular stress over time.' },
+        NE: { rating: 'YELLOW', score: 50,  title: 'Borderline / Tolerable',
+              reason: 'Sadhguru notes NE is "okay" as an intermediate angle, though not ideal.' },
+        E:  { rating: 'GREEN',  score: 100, title: 'Optimal',
+              reason: 'Best overall orientation. Enhances memory, mental clarity, and spiritual receptivity.' },
+        SE: { rating: 'YELLOW', score: 50,  title: 'Sub-optimal / Mixed',
+              reason: 'Intermediate zone inheriting partial effects of adjacent cardinal headings.' },
+        S:  { rating: 'GREEN',  score: 80,  title: 'Very Good',
+              reason: 'Neutralizes magnetic repulsion in the Northern Hemisphere; blood flows naturally without excess pressure on cerebral capillaries.' },
+        SW: { rating: 'YELLOW', score: 70,  title: 'Green-Light Leaning',
+              reason: 'Retains positive southern characteristics.' },
+        W:  { rating: 'YELLOW', score: 60,  title: 'Neutral / Acceptable',
+              reason: 'Acceptable fallback if East or South are physically unavailable in the room.' },
+        NW: { rating: 'YELLOW', score: 50,  title: 'Sub-optimal / Mixed',
+              reason: 'Intermediate zone inheriting partial effects of adjacent cardinal headings.' }
+      }
+    },
+    vastu_shastra: {
+      label: 'Classical Vastu',
+      hemisphereSwap: null,
+      rules: {
+        N:  { rating: 'RED',    score: 0,   title: 'Strictly Prohibited',
+              reason: 'Direct magnetic clash. Disrupts circadian rhythm, induces chronic insomnia, and depletes physical prana.' },
+        NE: { rating: 'RED',    score: 20,  title: 'Ishanya (Sacred/Water) Zone',
+              reason: 'Traditionally kept light and open; resting the head here creates energetic disturbances and headaches.' },
+        E:  { rating: 'GREEN',  score: 90,  title: 'Excellent',
+              reason: "Aligns with solar prana (sun's rise). Excellent for students, scholars, meditators, and cognitive clarity." },
+        SE: { rating: 'YELLOW', score: 40,  title: 'Agni (Fire) Zone',
+              reason: 'Can cause irritated sleep, excess body heat, or insomnia.' },
+        S:  { rating: 'GREEN',  score: 100, title: '#1 Vastu Recommendation',
+              reason: 'Polarity alignment (head attracts Earth’s South pole). Induces deep delta sleep, reduces blood pressure, promotes long-term health, vitality, and wealth.' },
+        SW: { rating: 'YELLOW', score: 70,  title: 'Nairutya Corner',
+              reason: 'Stable Earth element; acceptable if oriented slightly toward South.' },
+        W:  { rating: 'YELLOW', score: 50,  title: 'Neutral / Acceptable',
+              reason: 'Active Saturn/Varuna energies. Often restless or ambitious dreams; acceptable for guests or working professionals, neutral for long-term recovery.' },
+        NW: { rating: 'YELLOW', score: 40,  title: 'Vayu (Wind) Zone',
+              reason: 'Causes mental instability or unsettled sleep.' }
+      }
+    }
+  };
+
+  // Normalize any heading to [0, 360) and bucket it into one of 8 octants.
+  function headingToOctant(deg) {
+    const d = ((deg % 360) + 360) % 360;
+    if (d >= 337.5 || d < 22.5) return 'N';
+    if (d < 67.5) return 'NE';
+    if (d < 112.5) return 'E';
+    if (d < 157.5) return 'SE';
+    if (d < 202.5) return 'S';
+    if (d < 247.5) return 'SW';
+    if (d < 292.5) return 'W';
+    return 'NW';
+  }
+
+  // Public evaluation function — given a heading and a profile key,
+  // returns { octant, rating, score, title, reason }.
+  function evaluateHeading(headingDeg, profileKey, southernHemisphere) {
+    const profile = PROFILES[profileKey];
+    const octant = headingToOctant(headingDeg);
+    let effectiveOctant = octant;
+    if (southernHemisphere && profile.hemisphereSwap && profile.hemisphereSwap[octant]) {
+      effectiveOctant = profile.hemisphereSwap[octant];
+    }
+    return { octant, ...profile.rules[effectiveOctant] };
+  }
+
+  // --- rating UI wiring ---
+  const ratingBadge = document.getElementById('ratingBadge');
+  const ratingTitle = document.getElementById('ratingTitle');
+  const ratingOctant = document.getElementById('ratingOctant');
+  const ratingScoreFill = document.getElementById('ratingScoreFill');
+  const ratingReason = document.getElementById('ratingReason');
+  const southernHemisphereInput = document.getElementById('southernHemisphere');
+  const artIsha = document.getElementById('artIsha');
+  const artVastu = document.getElementById('artVastu');
+  const restartBtn = document.getElementById('restartBtn');
+
+  let currentProfile = 'isha_sadhguru';
+  let southernHemisphere = false;
+  let lastHeadingDeg = null;
+  let lastRating = null;
+  let calibrationTipShown = false;
+
+  const CALIBRATION_TIP_KEY = 'sleepCompassCalibrationTipDismissed';
+  const calibrationTip = document.getElementById('calibrationTip');
+  const calibrationTipDismiss = document.getElementById('calibrationTipDismiss');
+
+  calibrationTipDismiss.addEventListener('click', () => {
+    calibrationTip.classList.remove('visible');
+    calibrationTip.style.display = 'none';
+    try {
+      localStorage.setItem(CALIBRATION_TIP_KEY, 'true');
+    } catch (e) {
+      // ignore — not required for the app to work
+    }
+  });
+
+  // Remember the last-picked profile + hemisphere setting on this phone so
+  // you don't have to re-tap them every night. Wrapped in try/catch since
+  // some browsers (private mode, storage blocked) can throw on access —
+  // persistence is a nice-to-have, never required for the app to work.
+  const SETTINGS_KEY = 'sleepCompassSettings';
+
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved.profile && PROFILES[saved.profile]) currentProfile = saved.profile;
+      if (typeof saved.southernHemisphere === 'boolean') southernHemisphere = saved.southernHemisphere;
+    } catch (e) {
+      // fall back to defaults
+    }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ profile: currentProfile, southernHemisphere }));
+    } catch (e) {
+      // ignore — not required for the app to work
+    }
+  }
+
+  function updateBackground() {
+    artIsha.classList.toggle('active', currentProfile === 'isha_sadhguru');
+    artVastu.classList.toggle('active', currentProfile === 'vastu_shastra');
+    vastuPetals.forEach(p => p.classList.toggle('active', currentProfile === 'vastu_shastra'));
+  }
+
+  // Apply whatever was saved last time, before we render anything.
+  loadSettings();
+  document.querySelectorAll('.seg-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.profile === currentProfile);
+  });
+  southernHemisphereInput.checked = southernHemisphere;
+  updateBackground();
+
+  function updateRatingDisplay(deg) {
+    lastHeadingDeg = deg;
+    const result = evaluateHeading(deg, currentProfile, southernHemisphere);
+    const color = RATING_COLORS[result.rating];
+
+    // Small buzz only on the moment you roll INTO green — not a constant
+    // buzz while you sit there, and only on devices that support it.
+    if (result.rating === 'GREEN' && lastRating !== 'GREEN' && navigator.vibrate) {
+      navigator.vibrate(60);
+    }
+    lastRating = result.rating;
+
+    ratingBadge.textContent = result.rating;
+    ratingBadge.style.background = color;
+    ratingBadge.style.color = '#111318';
+
+    ratingTitle.textContent = result.title;
+    ratingOctant.textContent = `${OCTANT_LABELS[result.octant]} zone — ${result.score}% score`;
+    ratingReason.textContent = result.reason;
+
+    ratingScoreFill.style.width = `${result.score}%`;
+    ratingScoreFill.style.background = color;
+
+    headingEl.style.color = color;
+  }
+
+  document.querySelectorAll('.seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.seg-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentProfile = btn.dataset.profile;
+      updateBackground();
+      saveSettings();
+      if (lastHeadingDeg !== null) updateRatingDisplay(lastHeadingDeg);
+    });
+  });
+
+  southernHemisphereInput.addEventListener('change', (e) => {
+    southernHemisphere = e.target.checked;
+    saveSettings();
+    if (lastHeadingDeg !== null) updateRatingDisplay(lastHeadingDeg);
+  });
+
+  // Reset back to the start screen without a full page reload — handy while
+  // testing different spots in the room.
+  restartBtn.addEventListener('click', () => {
+    window.removeEventListener('deviceorientationabsolute', handleOrientation, true);
+    window.removeEventListener('deviceorientation', handleOrientation, true);
+    compassWrap.style.display = 'none';
+    startBtn.style.display = 'inline-block';
+    headingEl.textContent = '--°';
+    directionEl.textContent = '--';
+    statusEl.textContent = '';
+    dialRotation = 0;
+    dial.style.transform = 'rotate(0deg)';
+    lastHeadingDeg = null;
+  });
+
+  // ============================================================
+  // Step 2: sensor plumbing (unchanged), now also drives the rating
+  // ============================================================
+  // Accumulated (unwrapped) rotation applied to #dial. We track this instead
+  // of setting rotate(${-heading}deg) directly because heading wraps at
+  // 0°/360° — e.g. going from 359° to 1° is a 2° turn in real life, but a
+  // naive `rotate(-359deg)` -> `rotate(-1deg)` jump would animate almost a
+  // full spin. shortestDelta() always advances by the smaller of the two
+  // possible arcs, so the dial only ever turns the short way.
+  let dialRotation = 0;
+
+  function shortestDelta(target, current) {
+    let d = (target - current) % 360;
+    if (d > 180) d -= 360;
+    if (d < -180) d += 360;
+    return d;
+  }
+
+  function setDialRotation(headingDeg) {
+    const target = -headingDeg;
+    dialRotation += shortestDelta(target, dialRotation);
+    dial.style.transform = `rotate(${dialRotation}deg)`;
+  }
+
+  function updateHeading(deg) {
+    const rounded = Math.round(deg);
+    headingEl.textContent = `${rounded}°`;
+    directionEl.textContent = degToCompassPoint(rounded);
+    // Rotate the dial (ticks + cardinal labels) opposite the heading so
+    // whichever direction you're currently facing lines up with the
+    // fixed pointer at the top of the ring — like a real phone compass.
+    setDialRotation(rounded);
+    // Counter-rotate each cardinal letter by the same amount the dial just
+    // rotated, so N/E/S/W stay upright and readable instead of spinning
+    // sideways with the ring.
+    cardinalLabels.forEach((el) => {
+      el.style.transform = `translate(-50%, -50%) rotate(${rounded}deg)`;
+    });
+    updateRatingDisplay(rounded);
+  }
+
+  function handleOrientation(event) {
+    let heading = null;
+
+    if (typeof event.webkitCompassHeading === 'number') {
+      heading = event.webkitCompassHeading;
+    } else if (event.absolute && event.alpha !== null) {
+      heading = 360 - event.alpha;
+    } else if (event.alpha !== null) {
+      heading = 360 - event.alpha;
+    }
+
+    if (heading === null || isNaN(heading)) {
+      statusEl.textContent = 'No compass data from this sensor event.';
+      return;
+    }
+
+    statusEl.textContent = '';
+
+    if (!calibrationTipShown) {
+      calibrationTipShown = true;
+      let dismissedBefore = false;
+      try {
+        dismissedBefore = localStorage.getItem(CALIBRATION_TIP_KEY) === 'true';
+      } catch (e) {
+        // ignore — default to showing the tip
+      }
+      if (!dismissedBefore) {
+        calibrationTip.style.display = 'flex';
+      }
+    }
+
+    updateHeading((heading + 360) % 360);
+  }
+
+  function startCompass() {
+    startBtn.style.display = 'none';
+    compassWrap.style.display = 'flex';
+
+    const hasAbsolute = 'ondeviceorientationabsolute' in window;
+
+    if (hasAbsolute) {
+      window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+    } else {
+      window.addEventListener('deviceorientation', handleOrientation, true);
+    }
+
+    setTimeout(() => {
+      if (headingEl.textContent === '--°') {
+        statusEl.textContent = 'No sensor data received. Some browsers need HTTPS ' +
+          '(not a local file) or a phone with a magnetometer to send compass data.';
+      }
+    }, 3000);
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+        .then((response) => {
+          if (response === 'granted') {
+            startCompass();
+          } else {
+            statusEl.textContent = 'Compass permission denied.';
+          }
+        })
+        .catch((err) => {
+          statusEl.textContent = 'Permission request failed: ' + err.message;
+        });
+    } else {
+      startCompass();
+    }
+  });
+</script>
+
+</body>
+</html>
