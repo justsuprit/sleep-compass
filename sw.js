@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sleep-compass-v6';
+const CACHE_NAME = 'sleep-compass-v7';
 const APP_SHELL = [
   './',
   './index.html',
