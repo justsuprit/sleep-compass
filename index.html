@@ -84,24 +84,24 @@
     display: flex;
     background: #15171c;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    padding: 8px 4px calc(10px + env(safe-area-inset-bottom));
   }
   .tab-btn {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
     background: transparent;
     border: none;
     color: #6b7280;
-    font-size: 10px;
+    font-size: 11.5px;
     font-weight: 600;
     padding: 6px 2px;
     cursor: pointer;
   }
   .tab-btn .tab-icon {
-    font-size: 19px;
+    font-size: 26px;
     line-height: 1;
   }
   .tab-btn.active {
@@ -202,6 +202,7 @@
   #rose {
     width: clamp(170px, 40dvh, 270px);
     height: clamp(170px, 40dvh, 270px);
+    margin-top: 16px;
     flex: 0 0 auto;
     border-radius: 50%;
     border: 2px solid #3a3f4a;
@@ -470,6 +471,7 @@
     #rose {
       width: clamp(150px, 26dvh, 270px);
       height: clamp(150px, 26dvh, 270px);
+      margin-top: 6px;
     }
     .rating-reason {
       -webkit-line-clamp: 2;
@@ -490,7 +492,7 @@
 
     <section id="screen-compass" class="screen active" data-tab="compass">
       <h1>Sleep Compass</h1>
-      <p class="subtitle">Lay the phone flat, top edge pointing where your head will point</p>
+      <p class="subtitle">Lay the phone flat, top edge toward your head</p>
 
       <button id="startBtn">Enable Compass</button>
 
