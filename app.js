@@ -310,11 +310,23 @@ kuaGenderToggle.querySelectorAll('.seg-btn').forEach((btn) => {
 //
 // Rule (agreed with the user): the "Disaster Invariant" comes first — any
 // direction where EITHER partner would hit Lui Sha (-3) or Chueh Ming (-4)
-// is disqualified outright, no matter how good it is for the other person.
-// Everything that survives that gets averaged: (yourScore + partnerScore)
-// / 2, re-bucketed into GREEN/YELLOW/RED using the same score cutoffs the
-// individual stars already use (GREEN >= 80, YELLOW >= 35, else RED) so a
-// couple's "GREEN" means the same thing a solo GREEN does.
+// is disqualified outright ("SKIP"), no matter how good it is for the
+// other person. Everything that survives gets averaged: (yourScore +
+// partnerScore) / 2.
+//
+// Rating is RELATIVE, not the same absolute scale the solo profiles use.
+// East-group and West-group Kua numbers have exactly opposite favorable
+// directions by definition, so for a couple split across groups, no
+// direction can ever be simultaneously great for both of you — the best
+// possible average tops out well below the solo "GREEN" bar (80+). Rather
+// than show an all-yellow/skip board for those couples (technically
+// honest, but not much fun — this is meant to be playful, not a rulebook
+// to live by), whichever surviving direction(s) score highest for YOUR
+// specific pairing are shown as GREEN ("your best shared option"), and
+// every other surviving direction is YELLOW. SKIP is unchanged. This
+// guarantees there's always at least one positive highlight — same-group
+// couples still light up multiple real GREENs, cross-group couples get a
+// clear "best of what's realistically on offer for you two."
 // ============================================================
 const partnerBirthDateInput = document.getElementById('partnerBirthDate');
 const partnerGenderToggle = document.getElementById('partnerGenderToggle');
@@ -327,7 +339,7 @@ function getCoupleDirectionResults() {
   const selfDirections = KUA_DIRECTIONS[currentKuaNumber];
   const partnerDirections = KUA_DIRECTIONS[partnerKuaNumber];
 
-  return OCTANT_ORDER.map((octant) => {
+  const rows = OCTANT_ORDER.map((octant) => {
     const selfStar = KUA_STAR_INFO[selfDirections[octant]];
     const partnerStar = KUA_STAR_INFO[partnerDirections[octant]];
 
@@ -335,18 +347,29 @@ function getCoupleDirectionResults() {
       const culpritIsSelf = selfStar.value <= -3;
       const culpritStar = culpritIsSelf ? selfStar : partnerStar;
       return {
-        octant, disqualified: true, rating: 'RED', score: 0,
+        octant, disqualified: true, score: 0,
         detail: `Skip — ${culpritStar.name} is a severe direction for ${culpritIsSelf ? 'you' : 'your partner'} here.`
       };
     }
 
-    const score = Math.round((selfStar.score + partnerStar.score) / 2);
-    const rating = score >= 80 ? 'GREEN' : score >= 35 ? 'YELLOW' : 'RED';
     return {
-      octant, disqualified: false, rating, score,
+      octant, disqualified: false, score: Math.round((selfStar.score + partnerStar.score) / 2),
       detail: `You: ${selfStar.name} · Partner: ${partnerStar.name}`
     };
-  }).sort((a, b) => b.score - a.score);
+  });
+
+  // At most 4 octants can ever be disqualified (each partner has only 2
+  // severe-negative stars), so at least 4 always survive — there's always
+  // a highest surviving score to crown GREEN.
+  const survivingScores = rows.filter((r) => !r.disqualified).map((r) => r.score);
+  const topScore = survivingScores.length ? Math.max(...survivingScores) : null;
+
+  return rows
+    .map((r) => ({
+      ...r,
+      rating: r.disqualified ? 'RED' : (r.score === topScore ? 'GREEN' : 'YELLOW')
+    }))
+    .sort((a, b) => b.score - a.score);
 }
 
 function renderCouplesResults() {
@@ -361,7 +384,7 @@ function renderCouplesResults() {
     return;
   }
 
-  couplesStatusEl.textContent = `You: Kua ${currentKuaNumber} · Partner: Kua ${partnerKuaNumber} — ranked best to worst`;
+  couplesStatusEl.textContent = `You: Kua ${currentKuaNumber} · Partner: Kua ${partnerKuaNumber} — ranked best to worst. GREEN = your best shared option(s), not a guaranteed auspicious match for both.`;
   couplesResultsEl.innerHTML = results.map((r) => `
     <div class="couples-row">
       <div class="couples-row-octant">${OCTANT_LABELS[r.octant]}</div>
