@@ -253,7 +253,13 @@
     width: 100%;
     overflow: hidden;
     box-sizing: border-box;
-    padding: 10px 22px 4px;
+    /* iOS Safari, with our viewport-fit=cover, draws the page right under
+       the status bar/notch/Dynamic Island by default -- unlike a regular
+       Android Chrome tab, which doesn't need this. Without reserving that
+       space, the h1 title collides with the status bar. env() with a 0px
+       fallback means this is a no-op on Android/desktop, where there's no
+       inset to reserve. */
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 22px 4px;
   }
   .screen.active {
     display: flex;
@@ -565,6 +571,14 @@
     width: 100%;
   }
   .field-row input[type="date"] {
+    /* Without stripping the native control chrome first, iOS Safari keeps
+       its own opaque system-drawn background/border for a date input and
+       ignores ours underneath it -- Chrome is more lenient about letting
+       custom CSS override that, which is why this only ever looked broken
+       on iOS. appearance:none removes that native chrome so our own
+       background/border/color below actually take effect on both. */
+    -webkit-appearance: none;
+    appearance: none;
     background: rgba(var(--surface-rgb), 0.6);
     border: 1px solid rgba(var(--overlay-rgb), 0.12);
     border-radius: 8px;
