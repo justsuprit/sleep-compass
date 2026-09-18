@@ -107,21 +107,21 @@ export const CALIBRATION_TIP_KEY = 'sleepCompassCalibrationTipDismissed';
 // "Disaster Invariant" (any -3/-4 for either partner disqualifies that
 // direction outright).
 export const KUA_STAR_INFO = {
-  SHENG_CHI:  { rating: 'GREEN',  score: 100, value: 4,  title: 'Best — Sheng Chi',
+  SHENG_CHI:  { rating: 'GREEN',  score: 100, value: 4,  name: 'Sheng Chi', title: 'Best — Sheng Chi',
                 reason: 'Your #1 personal direction (Generating Breath) — the strongest of the four auspicious stars, linked to vitality and overall wellbeing.' },
-  TIEN_YI:    { rating: 'GREEN',  score: 80,  value: 3,  title: 'Very Good — Tien Yi',
+  TIEN_YI:    { rating: 'GREEN',  score: 80,  value: 3,  name: 'Tien Yi', title: 'Very Good — Tien Yi',
                 reason: 'Heavenly Doctor — supports health and recovery; a strong, reliable direction to sleep toward.' },
-  NIEN_YEN:   { rating: 'YELLOW', score: 65,  value: 2,  title: 'Good — Nien Yen',
+  NIEN_YEN:   { rating: 'YELLOW', score: 65,  value: 2,  name: 'Nien Yen', title: 'Good — Nien Yen',
                 reason: 'Longevity — favors relationships and steady long-term wellbeing.' },
-  FU_WEI:     { rating: 'YELLOW', score: 55,  value: 1,  title: 'Mild — Fu Wei',
+  FU_WEI:     { rating: 'YELLOW', score: 55,  value: 1,  name: 'Fu Wei', title: 'Mild — Fu Wei',
                 reason: 'Stability — the mildest of the four good directions; calm, but not a strong boost.' },
-  HO_HAI:     { rating: 'YELLOW', score: 35,  value: -1, title: 'Mildly Unfavorable — Ho Hai',
+  HO_HAI:     { rating: 'YELLOW', score: 35,  value: -1, name: 'Ho Hai', title: 'Mildly Unfavorable — Ho Hai',
                 reason: 'Accidents & Mishaps — the mildest of the four inauspicious stars; minor setbacks.' },
-  WU_KUEI:    { rating: 'RED',    score: 20,  value: -2, title: 'Unfavorable — Wu Kuei',
+  WU_KUEI:    { rating: 'RED',    score: 20,  value: -2, name: 'Wu Kuei', title: 'Unfavorable — Wu Kuei',
                 reason: 'Five Ghosts — linked to arguments, financial loss, and disrupted sleep.' },
-  LUI_SHA:    { rating: 'RED',    score: 10,  value: -3, title: 'Strongly Unfavorable — Lui Sha',
+  LUI_SHA:    { rating: 'RED',    score: 10,  value: -3, name: 'Lui Sha', title: 'Strongly Unfavorable — Lui Sha',
                 reason: 'Six Killings — linked to setbacks and illness; best avoided for sleep.' },
-  CHUEH_MING: { rating: 'RED',    score: 0,   value: -4, title: 'Strictly Avoid — Chueh Ming',
+  CHUEH_MING: { rating: 'RED',    score: 0,   value: -4, name: 'Chueh Ming', title: 'Strictly Avoid — Chueh Ming',
                 reason: 'Total Loss — the most severe of the eight directions; classically the one to avoid entirely.' }
 };
 

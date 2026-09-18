@@ -83,10 +83,24 @@
       <div id="status"></div>
     </section>
 
-    <section id="screen-couples" class="screen screen-placeholder" data-tab="couples">
-      <div class="placeholder-icon">🧭❤️</div>
-      <h2>Couples Mode</h2>
-      <p>Compare your Kua direction with your partner's and find a shared safe zone for both of you. Coming right after solo Kua numbers.</p>
+    <section id="screen-couples" class="screen" data-tab="couples" style="overflow-y:auto;">
+      <h1 style="margin-top:6px;">Couples Mode</h1>
+      <p class="subtitle">Find a shared sleep direction for both of you</p>
+
+      <div class="settings-section" style="margin-top:8px;">
+        <h3>Partner's birth date</h3>
+        <label class="field-row">
+          Birth date
+          <input type="date" id="partnerBirthDate">
+        </label>
+        <div class="segmented" id="partnerGenderToggle" style="margin-top:10px;">
+          <button class="seg-btn" type="button" data-gender="male">Male</button>
+          <button class="seg-btn" type="button" data-gender="female">Female</button>
+        </div>
+        <p id="couplesStatus" class="hint-text">Add your own birth date + gender in Settings, then your partner's above, to see your shared directions.</p>
+      </div>
+
+      <div id="couplesResults" class="couples-results"></div>
     </section>
 
     <section id="screen-journal" class="screen screen-placeholder" data-tab="journal">

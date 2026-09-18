@@ -156,6 +156,9 @@ let calibrationTipShown = false;
 let kuaBirthDate = '';
 let kuaGender = '';
 let currentKuaNumber = null;
+let partnerBirthDate = '';
+let partnerGender = '';
+let partnerKuaNumber = null;
 
 const calibrationTip = document.getElementById('calibrationTip');
 const calibrationTipDismiss = document.getElementById('calibrationTipDismiss');
@@ -206,6 +209,8 @@ function loadSettings() {
     if (saved.theme && THEMES.some((t) => t.id === saved.theme)) currentTheme = saved.theme;
     if (typeof saved.kuaBirthDate === 'string') kuaBirthDate = saved.kuaBirthDate;
     if (saved.kuaGender === 'male' || saved.kuaGender === 'female') kuaGender = saved.kuaGender;
+    if (typeof saved.partnerBirthDate === 'string') partnerBirthDate = saved.partnerBirthDate;
+    if (saved.partnerGender === 'male' || saved.partnerGender === 'female') partnerGender = saved.partnerGender;
   } catch (e) {
     // fall back to defaults
   }
@@ -218,7 +223,9 @@ function saveSettings() {
       southernHemisphere,
       theme: currentTheme,
       kuaBirthDate,
-      kuaGender
+      kuaGender,
+      partnerBirthDate,
+      partnerGender
     }));
   } catch (e) {
     // ignore — not required for the app to work
@@ -278,6 +285,7 @@ function updateKuaResult() {
     kuaResultEl.textContent = 'Enter your birth date and gender above to calculate your Kua number.';
   }
   if (currentProfile === 'kua_direction' && lastHeadingDeg !== null) updateRatingDisplay(lastHeadingDeg);
+  renderCouplesResults();
 }
 
 kuaBirthDateInput.addEventListener('change', (e) => {
@@ -296,6 +304,94 @@ kuaGenderToggle.querySelectorAll('.seg-btn').forEach((btn) => {
   });
 });
 
+// ============================================================
+// Couples Mode — combines the user's own Kua (from Settings) with a
+// partner's (entered right here) into a per-direction shared rating.
+//
+// Rule (agreed with the user): the "Disaster Invariant" comes first — any
+// direction where EITHER partner would hit Lui Sha (-3) or Chueh Ming (-4)
+// is disqualified outright, no matter how good it is for the other person.
+// Everything that survives that gets averaged: (yourScore + partnerScore)
+// / 2, re-bucketed into GREEN/YELLOW/RED using the same score cutoffs the
+// individual stars already use (GREEN >= 80, YELLOW >= 35, else RED) so a
+// couple's "GREEN" means the same thing a solo GREEN does.
+// ============================================================
+const partnerBirthDateInput = document.getElementById('partnerBirthDate');
+const partnerGenderToggle = document.getElementById('partnerGenderToggle');
+const couplesStatusEl = document.getElementById('couplesStatus');
+const couplesResultsEl = document.getElementById('couplesResults');
+const OCTANT_ORDER = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+function getCoupleDirectionResults() {
+  if (!currentKuaNumber || !partnerKuaNumber) return null;
+  const selfDirections = KUA_DIRECTIONS[currentKuaNumber];
+  const partnerDirections = KUA_DIRECTIONS[partnerKuaNumber];
+
+  return OCTANT_ORDER.map((octant) => {
+    const selfStar = KUA_STAR_INFO[selfDirections[octant]];
+    const partnerStar = KUA_STAR_INFO[partnerDirections[octant]];
+
+    if (selfStar.value <= -3 || partnerStar.value <= -3) {
+      const culpritIsSelf = selfStar.value <= -3;
+      const culpritStar = culpritIsSelf ? selfStar : partnerStar;
+      return {
+        octant, disqualified: true, rating: 'RED', score: 0,
+        detail: `Skip — ${culpritStar.name} is a severe direction for ${culpritIsSelf ? 'you' : 'your partner'} here.`
+      };
+    }
+
+    const score = Math.round((selfStar.score + partnerStar.score) / 2);
+    const rating = score >= 80 ? 'GREEN' : score >= 35 ? 'YELLOW' : 'RED';
+    return {
+      octant, disqualified: false, rating, score,
+      detail: `You: ${selfStar.name} · Partner: ${partnerStar.name}`
+    };
+  }).sort((a, b) => b.score - a.score);
+}
+
+function renderCouplesResults() {
+  if (!couplesResultsEl) return;
+  const results = getCoupleDirectionResults();
+
+  if (!results) {
+    couplesResultsEl.innerHTML = '';
+    couplesStatusEl.textContent = !currentKuaNumber
+      ? 'Add your own birth date + gender in Settings, then your partner\'s above, to see your shared directions.'
+      : 'Enter your partner\'s birth date and gender above to see your shared directions.';
+    return;
+  }
+
+  couplesStatusEl.textContent = `You: Kua ${currentKuaNumber} · Partner: Kua ${partnerKuaNumber} — ranked best to worst`;
+  couplesResultsEl.innerHTML = results.map((r) => `
+    <div class="couples-row">
+      <div class="couples-row-octant">${OCTANT_LABELS[r.octant]}</div>
+      <div class="couples-row-detail">${r.detail}</div>
+      <div class="couples-row-badge" style="background:${RATING_COLORS[r.rating]}">${r.disqualified ? 'SKIP' : r.rating}</div>
+    </div>
+  `).join('');
+}
+
+function updatePartnerKua() {
+  partnerKuaNumber = (partnerBirthDate && partnerGender) ? calculateKuaNumber(partnerBirthDate, partnerGender) : null;
+  renderCouplesResults();
+}
+
+partnerBirthDateInput.addEventListener('change', (e) => {
+  partnerBirthDate = e.target.value;
+  saveSettings();
+  updatePartnerKua();
+});
+
+partnerGenderToggle.querySelectorAll('.seg-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    partnerGenderToggle.querySelectorAll('.seg-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    partnerGender = btn.dataset.gender;
+    saveSettings();
+    updatePartnerKua();
+  });
+});
+
 // Apply whatever was saved last time, before we render anything.
 loadSettings();
 applyThemeVisual(currentTheme);
@@ -307,7 +403,13 @@ kuaBirthDateInput.value = kuaBirthDate;
 kuaGenderToggle.querySelectorAll('.seg-btn').forEach((btn) => {
   btn.classList.toggle('active', btn.dataset.gender === kuaGender);
 });
+partnerBirthDateInput.value = partnerBirthDate;
+partnerGenderToggle.querySelectorAll('.seg-btn').forEach((btn) => {
+  btn.classList.toggle('active', btn.dataset.gender === partnerGender);
+});
 updateKuaResult();
+partnerKuaNumber = (partnerBirthDate && partnerGender) ? calculateKuaNumber(partnerBirthDate, partnerGender) : null;
+renderCouplesResults();
 updateBackground();
 buildRing();
 
@@ -519,6 +621,10 @@ tabButtons.forEach((btn) => {
       buildRing();
       updateBackground();
       if (lastHeadingDeg !== null) updateHeading(lastHeadingDeg);
+    } else if (target === 'couples') {
+      // Catches the case where your own Kua (Settings) changed while you
+      // were on a different tab, so Couples always reflects the latest.
+      renderCouplesResults();
     }
   });
 });
