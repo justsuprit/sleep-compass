@@ -11,23 +11,156 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
 <title>Sleep Compass — V1</title>
+<script>
+(function () {
+  try {
+    var raw = localStorage.getItem('sleepCompassSettings');
+    if (raw) {
+      var saved = JSON.parse(raw);
+      if (saved && saved.theme) document.documentElement.setAttribute('data-theme', saved.theme);
+    }
+  } catch (e) {}
+})();
+</script>
 <style>
   :root {
     color-scheme: dark;
+
+    /* --- Theme tokens (default palette = "Coral Ember") --- */
+    --bg: #1a1a1a;
+    --surface-rgb: 40, 40, 40;
+    --surface-solid: #242424;
+    --surface-solid2: #161616;
+    --tabbar-rgb: 42, 40, 38;
+    --overlay-rgb: 255, 255, 255;
+    --accent: #ff7a50;
+    --accent-dark: #e0603a;
+    --accent-rgb: 255, 122, 80;
+    --on-accent: #ffffff;
+    --text-primary: #f5f5f5;
+    --text-muted: #a3a29e;
+    --text-dim: #85817a;
+    --text-faint: #57534d;
+    --label-color: #d6d3cd;
+    --reason-color: #c4c1ba;
+    --tip-text: #ffcdb3;
+    --border-color: #3d3a37;
+    --track-color: #2e2c2a;
+  }
+  html[data-theme="terracotta"] {
+    --bg: #1c1a18;
+    --surface-rgb: 45, 40, 36;
+    --surface-solid: #262220;
+    --surface-solid2: #1a1613;
+    --tabbar-rgb: 45, 40, 36;
+    --accent: #d97a52;
+    --accent-dark: #b8613e;
+    --accent-rgb: 217, 122, 82;
+    --text-primary: #f2ece5;
+    --text-muted: #a89a8c;
+    --text-dim: #8f8478;
+    --text-faint: #5c5348;
+    --label-color: #ddd2c6;
+    --reason-color: #c9bcae;
+    --tip-text: #f0c4ac;
+    --border-color: #4a4038;
+    --track-color: #332c26;
+  }
+  html[data-theme="amber"] {
+    --bg: #14161c;
+    --surface-rgb: 30, 33, 41;
+    --surface-solid: #1e2129;
+    --surface-solid2: #101217;
+    --tabbar-rgb: 30, 33, 41;
+    --accent: #f0a03c;
+    --accent-dark: #cc8329;
+    --accent-rgb: 240, 160, 60;
+    --on-accent: #14161c;
+    --text-primary: #eceef2;
+    --text-muted: #9aa0ab;
+    --text-dim: #7d838d;
+    --text-faint: #4d515c;
+    --label-color: #d7dae2;
+    --reason-color: #bcc1cb;
+    --tip-text: #ffd9a0;
+    --border-color: #363b46;
+    --track-color: #232733;
+  }
+  html[data-theme="sage"] {
+    --bg: #1b1f1c;
+    --surface-rgb: 36, 41, 36;
+    --surface-solid: #242924;
+    --surface-solid2: #161a16;
+    --tabbar-rgb: 36, 41, 36;
+    --accent: #d98b5f;
+    --accent-dark: #b8713f;
+    --accent-rgb: 217, 139, 95;
+    --text-primary: #eaeee9;
+    --text-muted: #9fada0;
+    --text-dim: #7f8c81;
+    --text-faint: #4e594f;
+    --label-color: #d4ddd5;
+    --reason-color: #bfc9c1;
+    --tip-text: #f0c9ac;
+    --border-color: #3a423a;
+    --track-color: #272d27;
+  }
+  html[data-theme="charcoal"] {
+    --bg: #1c1c1c;
+    --surface-rgb: 38, 38, 38;
+    --surface-solid: #262626;
+    --surface-solid2: #151515;
+    --tabbar-rgb: 38, 38, 38;
+    --accent: #e8c39e;
+    --accent-dark: #c9a37c;
+    --accent-rgb: 232, 195, 158;
+    --on-accent: #1c1c1c;
+    --text-primary: #eeeeee;
+    --text-muted: #a8a8a8;
+    --text-dim: #8a8a8a;
+    --text-faint: #555555;
+    --label-color: #dcdcdc;
+    --reason-color: #bcbcbc;
+    --tip-text: #f0dcc0;
+    --border-color: #3d3d3d;
+    --track-color: #2b2b2b;
+  }
+  html[data-theme="daylight"] {
+    color-scheme: light;
+    --bg: #f5f1ec;
+    --surface-rgb: 255, 255, 255;
+    --surface-solid: #ffffff;
+    --surface-solid2: #efe9e1;
+    --tabbar-rgb: 255, 255, 255;
+    --overlay-rgb: 0, 0, 0;
+    --accent: #ff7a50;
+    --accent-dark: #e0603a;
+    --accent-rgb: 255, 122, 80;
+    --on-accent: #ffffff;
+    --text-primary: #2a2723;
+    --text-muted: #6b6459;
+    --text-dim: #8a8378;
+    --text-faint: #c7c0b5;
+    --label-color: #3a352f;
+    --reason-color: #4d473e;
+    --tip-text: #b5502c;
+    --border-color: #e2dad0;
+    --track-color: #ece5db;
   }
   html, body {
     height: 100%;
     overflow: hidden;
   }
   html {
-    background: #1a1a1a;
+    background: var(--bg);
+    transition: background 0.25s ease;
   }
   body {
     margin: 0;
     display: flex;
     flex-direction: column;
     background: transparent;
-    color: #eaeaea;
+    color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     text-align: center;
     box-sizing: border-box;
@@ -39,7 +172,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    background: #1a1a1a;
+    background: var(--bg);
   }
   #screens {
     flex: 1 1 auto;
@@ -71,23 +204,23 @@
   .screen-placeholder h2 {
     margin: 0;
     font-size: 19px;
-    color: #f5f5f5;
+    color: var(--text-primary);
   }
   .screen-placeholder p {
     margin: 0;
     max-width: 300px;
     font-size: 13px;
     line-height: 1.5;
-    color: #a3a29e;
+    color: var(--text-muted);
   }
   #tabbar {
     flex: 0 0 auto;
     display: flex;
     margin: 0 14px calc(12px + env(safe-area-inset-bottom));
-    background: rgba(42, 40, 38, 0.72);
+    background: rgba(var(--tabbar-rgb), 0.72);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(var(--overlay-rgb), 0.1);
     border-radius: 999px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 6px 20px rgba(0, 0, 0, 0.35);
     padding: 6px 6px;
@@ -100,7 +233,7 @@
     background: transparent;
     border: none;
     border-radius: 999px;
-    color: #85817a;
+    color: var(--text-dim);
     padding: 2px;
     cursor: pointer;
   }
@@ -118,10 +251,10 @@
     display: block;
   }
   .tab-btn.active {
-    color: #ff7a50;
+    color: var(--accent);
   }
   .tab-btn.active .tab-icon-wrap {
-    background: rgba(255, 122, 80, 0.18);
+    background: rgba(var(--accent-rgb), 0.18);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .settings-section {
@@ -133,7 +266,7 @@
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #85817a;
+    color: var(--text-dim);
     margin: 0 0 10px;
   }
   .ring-art-wrap {
@@ -180,11 +313,11 @@
     font-size: 18px;
     font-weight: 600;
     margin: 0 0 2px;
-    color: #f5f5f5;
+    color: var(--text-primary);
   }
   p.subtitle {
     margin: 0 0 4px;
-    color: #a3a29e;
+    color: var(--text-muted);
     font-size: 13px;
   }
   button {
@@ -200,12 +333,12 @@
     font-size: 16px;
     border-radius: 10px;
     border: none;
-    background: #ff7a50;
-    color: white;
+    background: var(--accent);
+    color: var(--on-accent);
     cursor: pointer;
   }
   #startBtn:active {
-    background: #e0603a;
+    background: var(--accent-dark);
   }
   #compassWrap {
     display: none;
@@ -229,27 +362,27 @@
     margin-top: 16px;
     flex: 0 0 auto;
     border-radius: 50%;
-    border: 2px solid #3d3a37;
+    border: 2px solid var(--border-color);
     position: relative;
-    background: radial-gradient(circle at center, #242424 0%, #161616 100%);
-    transition: border-color 0.5s ease, box-shadow 0.5s ease;
+    background: radial-gradient(circle at center, var(--surface-solid) 0%, var(--surface-solid2) 100%);
+    transition: border-color 0.5s ease, box-shadow 0.5s ease, background 0.25s ease;
   }
   .tick {
     position: absolute;
     width: 2px;
     height: 12px;
-    background: #57534d;
+    background: var(--text-faint);
   }
   .tick.major {
     height: 18px;
-    background: #85817a;
+    background: var(--text-dim);
     width: 3px;
   }
   .label {
     position: absolute;
     font-size: 16px;
     font-weight: 700;
-    color: #d6d3cd;
+    color: var(--label-color);
   }
   #dial {
     position: absolute;
@@ -257,7 +390,7 @@
     transition: transform 0.15s ease-out;
   }
   .tick.tick-north {
-    background: #ff7a50;
+    background: var(--accent);
     width: 4px;
     height: 22px;
   }
@@ -269,7 +402,7 @@
     height: 0;
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
-    border-top: 13px solid #f5f5f5;
+    border-top: 13px solid var(--text-primary);
     transform: translate(-50%, -50%);
     z-index: 3;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
@@ -280,7 +413,7 @@
     left: 50%;
     width: 10px;
     height: 10px;
-    background: #ff7a50;
+    background: var(--accent);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
@@ -294,7 +427,7 @@
   }
   #direction {
     font-size: 15px;
-    color: #a3a29e;
+    color: var(--text-muted);
     margin-top: 2px;
   }
   #status {
@@ -308,10 +441,10 @@
   .segmented {
     display: flex;
     margin-top: 8px;
-    background: rgba(40, 40, 40, 0.6);
+    background: rgba(var(--surface-rgb), 0.6);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(var(--overlay-rgb), 0.08);
     border-radius: 10px;
     padding: 4px;
     width: 100%;
@@ -322,14 +455,14 @@
     border: none;
     border-radius: 8px;
     background: transparent;
-    color: #a3a29e;
+    color: var(--text-muted);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
   }
   .seg-btn.active {
-    background: #ff7a50;
-    color: white;
+    background: var(--accent);
+    color: var(--on-accent);
   }
   .checkbox-row {
     display: flex;
@@ -337,20 +470,20 @@
     gap: 8px;
     margin-top: 14px;
     font-size: 12px;
-    color: #a3a29e;
+    color: var(--text-muted);
     text-align: left;
     width: 100%;
   }
   .checkbox-row .hint {
-    color: #85817a;
+    color: var(--text-dim);
   }
   .rating-card {
     margin-top: 6px;
     width: 100%;
-    background: rgba(40, 40, 40, 0.6);
+    background: rgba(var(--surface-rgb), 0.6);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(var(--overlay-rgb), 0.08);
     border-radius: 14px;
     padding: 10px 14px;
     box-sizing: border-box;
@@ -363,38 +496,38 @@
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.5px;
-    background: #3d3a37;
-    color: #eaeaea;
+    background: var(--border-color);
+    color: var(--text-primary);
   }
   .rating-title {
     margin-top: 8px;
     font-size: 16px;
     font-weight: 700;
-    color: #f5f5f5;
+    color: var(--text-primary);
   }
   .rating-octant {
     margin-top: 2px;
     font-size: 12px;
-    color: #a3a29e;
+    color: var(--text-muted);
   }
   .score-bar {
     margin-top: 10px;
     height: 6px;
     border-radius: 999px;
-    background: #2e2c2a;
+    background: var(--track-color);
     overflow: hidden;
   }
   .score-fill {
     height: 100%;
     width: 0%;
-    background: #ff7a50;
+    background: var(--accent);
     transition: width 0.3s ease, background 0.3s ease;
   }
   .rating-reason {
     margin-top: 8px;
     font-size: 12px;
     line-height: 1.4;
-    color: #c4c1ba;
+    color: var(--reason-color);
     text-align: left;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -407,7 +540,7 @@
     justify-content: center;
     gap: 18px;
     font-size: 12px;
-    color: #a3a29e;
+    color: var(--text-muted);
   }
   .legend-item {
     display: flex;
@@ -426,13 +559,13 @@
     font-size: 12px;
     font-weight: 600;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.04);
-    color: #a3a29e;
+    border: 1px solid rgba(var(--overlay-rgb), 0.14);
+    background: rgba(var(--overlay-rgb), 0.04);
+    color: var(--text-muted);
     cursor: pointer;
   }
   #restartBtn:active {
-    background: rgba(255, 255, 255, 0.09);
+    background: rgba(var(--overlay-rgb), 0.09);
   }
   .calibration-tip {
     display: none;
@@ -440,11 +573,11 @@
     gap: 10px;
     margin-top: 6px;
     padding: 6px 10px;
-    background: rgba(255, 122, 80, 0.12);
-    border: 1px solid rgba(255, 122, 80, 0.3);
+    background: rgba(var(--accent-rgb), 0.12);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 10px;
     font-size: 11px;
-    color: #ffcdb3;
+    color: var(--tip-text);
     text-align: left;
     width: 100%;
     box-sizing: border-box;
@@ -458,7 +591,7 @@
     flex-shrink: 0;
     border: none;
     background: transparent;
-    color: #ffcdb3;
+    color: var(--tip-text);
     font-size: 16px;
     line-height: 1;
     cursor: pointer;
@@ -468,7 +601,7 @@
     margin-top: 2px;
     background: transparent;
     border: none;
-    color: #85817a;
+    color: var(--text-dim);
     font-size: 12px;
     cursor: pointer;
     text-decoration: underline;
@@ -478,12 +611,12 @@
   .info-popover {
     margin-top: 6px;
     padding: 12px 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(var(--overlay-rgb), 0.04);
+    border: 1px solid rgba(var(--overlay-rgb), 0.08);
     border-radius: 10px;
     font-size: 11px;
     line-height: 1.5;
-    color: #a3a29e;
+    color: var(--text-muted);
     text-align: left;
   }
 
@@ -506,6 +639,56 @@
     .calibration-tip {
       padding: 4px 8px;
     }
+  }
+
+  /* --- Settings: theme picker --- */
+  .theme-picker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .theme-swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 6px;
+    border-radius: 12px;
+    border: 1.5px solid transparent;
+    background: rgba(var(--overlay-rgb), 0.04);
+    cursor: pointer;
+  }
+  .theme-swatch.active {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.1);
+  }
+  .theme-swatch-preview {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(var(--overlay-rgb), 0.15);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .theme-swatch-preview span {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid var(--bg);
+  }
+  .theme-swatch-label {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .theme-swatch.active .theme-swatch-label {
+    color: var(--text-primary);
+    font-weight: 600;
   }
 </style>
 </head>
@@ -588,6 +771,11 @@
           <input type="checkbox" id="southernHemisphere">
           Southern Hemisphere <span class="hint">(swaps N/S — Isha/Sadhguru only)</span>
         </label>
+      </div>
+
+      <div class="settings-section">
+        <h3>Appearance</h3>
+        <div id="themePicker" class="theme-picker"></div>
       </div>
 
       <div class="settings-section">
@@ -832,13 +1020,28 @@
   const ratingOctant = document.getElementById('ratingOctant');
   const ratingScoreFill = document.getElementById('ratingScoreFill');
   const ratingReason = document.getElementById('ratingReason');
+  // Built-in color themes. `bg`/`accent` here are just for rendering the
+  // Settings swatches + tinting the browser chrome (theme-color meta) — the
+  // real palette lives in the CSS custom properties under each
+  // html[data-theme="..."] block up in <style>.
+  const THEMES = [
+    { id: 'ember', label: 'Coral Ember', bg: '#1a1a1a', accent: '#ff7a50' },
+    { id: 'terracotta', label: 'Terracotta Clay', bg: '#1c1a18', accent: '#d97a52' },
+    { id: 'amber', label: 'Amber Midnight', bg: '#14161c', accent: '#f0a03c' },
+    { id: 'sage', label: 'Sage & Clay', bg: '#1b1f1c', accent: '#d98b5f' },
+    { id: 'charcoal', label: 'Charcoal Mono', bg: '#1c1c1c', accent: '#e8c39e' },
+    { id: 'daylight', label: 'Daylight', bg: '#f5f1ec', accent: '#ff7a50' },
+  ];
+
   const southernHemisphereInput = document.getElementById('southernHemisphere');
   const artIsha = document.getElementById('artIsha');
   const artVastu = document.getElementById('artVastu');
   const restartBtn = document.getElementById('restartBtn');
+  const themePickerEl = document.getElementById('themePicker');
 
   let currentProfile = 'isha_sadhguru';
   let southernHemisphere = false;
+  let currentTheme = 'ember';
   let lastHeadingDeg = null;
   let lastRating = null;
   let calibrationTipShown = false;
@@ -901,6 +1104,7 @@
       const saved = JSON.parse(raw);
       if (saved.profile && PROFILES[saved.profile]) currentProfile = saved.profile;
       if (typeof saved.southernHemisphere === 'boolean') southernHemisphere = saved.southernHemisphere;
+      if (saved.theme && THEMES.some((t) => t.id === saved.theme)) currentTheme = saved.theme;
     } catch (e) {
       // fall back to defaults
     }
@@ -908,10 +1112,41 @@
 
   function saveSettings() {
     try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ profile: currentProfile, southernHemisphere }));
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ profile: currentProfile, southernHemisphere, theme: currentTheme }));
     } catch (e) {
       // ignore — not required for the app to work
     }
+  }
+
+  // Applies a theme id to the DOM: swaps the CSS variable set via
+  // data-theme, nudges the browser-chrome tint (address bar / recent-apps
+  // card) to match, and highlights the right swatch in Settings.
+  function applyThemeVisual(id) {
+    document.documentElement.setAttribute('data-theme', id);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const theme = THEMES.find((t) => t.id === id) || THEMES[0];
+    if (meta) meta.setAttribute('content', theme.bg);
+    document.querySelectorAll('.theme-swatch').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.theme === id);
+    });
+  }
+
+  // Build the theme picker in Settings from THEMES, and wire taps to
+  // switch + persist immediately.
+  if (themePickerEl) {
+    themePickerEl.innerHTML = THEMES.map((t) => `
+      <button class="theme-swatch" type="button" data-theme="${t.id}" aria-label="${t.label}">
+        <span class="theme-swatch-preview" style="background:${t.bg};"><span style="background:${t.accent};"></span></span>
+        <span class="theme-swatch-label">${t.label}</span>
+      </button>
+    `).join('');
+    themePickerEl.querySelectorAll('.theme-swatch').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentTheme = btn.dataset.theme;
+        applyThemeVisual(currentTheme);
+        saveSettings();
+      });
+    });
   }
 
   function updateBackground() {
@@ -922,6 +1157,7 @@
 
   // Apply whatever was saved last time, before we render anything.
   loadSettings();
+  applyThemeVisual(currentTheme);
   document.querySelectorAll('.seg-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.profile === currentProfile);
   });
