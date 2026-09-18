@@ -209,6 +209,16 @@
   html {
     background: var(--bg);
     transition: background 0.25s ease;
+    /* Chrome 135+ on Android draws a "chin" over the gesture nav bar that
+       can briefly be taller than the space our fixed 100% box reserves,
+       showing whatever's behind it (defaults to a dark system color) for
+       a sliver at the very bottom. Reserving that space up front, painted
+       with our own theme color via padding (border-box, so nothing else
+       shifts), means there's never a gap for the wrong color to show
+       through. Falls back to 0px with no visual change anywhere this
+       feature doesn't exist (iOS, desktop, older Android/Chrome). */
+    padding-bottom: env(safe-area-max-inset-bottom, 0px);
+    box-sizing: border-box;
   }
   body {
     margin: 0;
