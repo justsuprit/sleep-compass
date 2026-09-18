@@ -249,6 +249,22 @@ function applyThemeVisual(id) {
   if (manifestLink) {
     manifestLink.setAttribute('href', id === 'daylight' ? 'manifest-light.json' : 'manifest.json');
   }
+  // Chrome's Android WebAPK wrapper for an *installed* ("Add to Home
+  // Screen") PWA derives the status/gesture-nav bar colors strictly from
+  // manifest.json at whatever URL it saw at install time -- it does not
+  // look at the live <link rel="manifest"> swap above, or at the live
+  // theme-color meta tag, while running in standalone mode. The only way
+  // to reach an *already installed* icon is for manifest.json itself (the
+  // exact URL it keeps re-checking) to start answering with the current
+  // theme's colors. sw.js's fetch handler does that, but it runs in a
+  // separate worker with no access to localStorage, so we hand it the
+  // current theme id via the Cache Storage API instead (the one storage
+  // mechanism both this page and the service worker can read/write).
+  if ('caches' in window) {
+    caches.open('theme-state')
+      .then((cache) => cache.put('/__theme-state', new Response(JSON.stringify({ theme: id }))))
+      .catch(() => { /* best-effort — worst case the installed icon just keeps its last-known theme */ });
+  }
   document.querySelectorAll('.theme-swatch').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.theme === id);
   });
