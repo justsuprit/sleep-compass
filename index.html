@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#111318">
+<meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Sleep Compass">
@@ -20,7 +20,7 @@
     overflow: hidden;
   }
   html {
-    background: #111318;
+    background: #1a1a1a;
   }
   body {
     margin: 0;
@@ -39,7 +39,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    background: #111318;
+    background: #1a1a1a;
   }
   #screens {
     flex: 1 1 auto;
@@ -78,13 +78,13 @@
     max-width: 300px;
     font-size: 13px;
     line-height: 1.5;
-    color: #9aa0a8;
+    color: #a3a29e;
   }
   #tabbar {
     flex: 0 0 auto;
     display: flex;
     margin: 0 14px calc(12px + env(safe-area-inset-bottom));
-    background: rgba(30, 32, 38, 0.72);
+    background: rgba(42, 40, 38, 0.72);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -100,7 +100,7 @@
     background: transparent;
     border: none;
     border-radius: 999px;
-    color: #6b7280;
+    color: #85817a;
     padding: 2px;
     cursor: pointer;
   }
@@ -118,10 +118,10 @@
     display: block;
   }
   .tab-btn.active {
-    color: #4f7cff;
+    color: #ff7a50;
   }
   .tab-btn.active .tab-icon-wrap {
-    background: rgba(79, 124, 255, 0.18);
+    background: rgba(255, 122, 80, 0.18);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .settings-section {
@@ -133,7 +133,7 @@
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #6b7280;
+    color: #85817a;
     margin: 0 0 10px;
   }
   .ring-art-wrap {
@@ -184,7 +184,7 @@
   }
   p.subtitle {
     margin: 0 0 4px;
-    color: #9aa0a8;
+    color: #a3a29e;
     font-size: 13px;
   }
   button {
@@ -200,12 +200,12 @@
     font-size: 16px;
     border-radius: 10px;
     border: none;
-    background: #4f7cff;
+    background: #ff7a50;
     color: white;
     cursor: pointer;
   }
   #startBtn:active {
-    background: #3d63d6;
+    background: #e0603a;
   }
   #compassWrap {
     display: none;
@@ -229,27 +229,27 @@
     margin-top: 16px;
     flex: 0 0 auto;
     border-radius: 50%;
-    border: 2px solid #3a3f4a;
+    border: 2px solid #3d3a37;
     position: relative;
-    background: radial-gradient(circle at center, #1a1d24 0%, #14161b 100%);
+    background: radial-gradient(circle at center, #242424 0%, #161616 100%);
     transition: border-color 0.5s ease, box-shadow 0.5s ease;
   }
   .tick {
     position: absolute;
     width: 2px;
     height: 12px;
-    background: #4a4f5a;
+    background: #57534d;
   }
   .tick.major {
     height: 18px;
-    background: #6b7280;
+    background: #85817a;
     width: 3px;
   }
   .label {
     position: absolute;
     font-size: 16px;
     font-weight: 700;
-    color: #c7cad1;
+    color: #d6d3cd;
   }
   #dial {
     position: absolute;
@@ -257,7 +257,7 @@
     transition: transform 0.15s ease-out;
   }
   .tick.tick-north {
-    background: #4f7cff;
+    background: #ff7a50;
     width: 4px;
     height: 22px;
   }
@@ -280,7 +280,7 @@
     left: 50%;
     width: 10px;
     height: 10px;
-    background: #4f7cff;
+    background: #ff7a50;
     border-radius: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
@@ -294,7 +294,7 @@
   }
   #direction {
     font-size: 15px;
-    color: #9aa0a8;
+    color: #a3a29e;
     margin-top: 2px;
   }
   #status {
@@ -308,7 +308,7 @@
   .segmented {
     display: flex;
     margin-top: 8px;
-    background: rgba(26, 29, 36, 0.6);
+    background: rgba(40, 40, 40, 0.6);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -322,13 +322,13 @@
     border: none;
     border-radius: 8px;
     background: transparent;
-    color: #9aa0a8;
+    color: #a3a29e;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
   }
   .seg-btn.active {
-    background: #4f7cff;
+    background: #ff7a50;
     color: white;
   }
   .checkbox-row {
@@ -337,17 +337,17 @@
     gap: 8px;
     margin-top: 14px;
     font-size: 12px;
-    color: #9aa0a8;
+    color: #a3a29e;
     text-align: left;
     width: 100%;
   }
   .checkbox-row .hint {
-    color: #6b7280;
+    color: #85817a;
   }
   .rating-card {
     margin-top: 6px;
     width: 100%;
-    background: rgba(26, 29, 36, 0.6);
+    background: rgba(40, 40, 40, 0.6);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -363,7 +363,7 @@
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.5px;
-    background: #3a3f4a;
+    background: #3d3a37;
     color: #eaeaea;
   }
   .rating-title {
@@ -375,26 +375,26 @@
   .rating-octant {
     margin-top: 2px;
     font-size: 12px;
-    color: #9aa0a8;
+    color: #a3a29e;
   }
   .score-bar {
     margin-top: 10px;
     height: 6px;
     border-radius: 999px;
-    background: #2a2e37;
+    background: #2e2c2a;
     overflow: hidden;
   }
   .score-fill {
     height: 100%;
     width: 0%;
-    background: #4f7cff;
+    background: #ff7a50;
     transition: width 0.3s ease, background 0.3s ease;
   }
   .rating-reason {
     margin-top: 8px;
     font-size: 12px;
     line-height: 1.4;
-    color: #b6bac2;
+    color: #c4c1ba;
     text-align: left;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -407,7 +407,7 @@
     justify-content: center;
     gap: 18px;
     font-size: 12px;
-    color: #9aa0a8;
+    color: #a3a29e;
   }
   .legend-item {
     display: flex;
@@ -428,7 +428,7 @@
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     background: rgba(255, 255, 255, 0.04);
-    color: #9aa0a8;
+    color: #a3a29e;
     cursor: pointer;
   }
   #restartBtn:active {
@@ -440,11 +440,11 @@
     gap: 10px;
     margin-top: 6px;
     padding: 6px 10px;
-    background: rgba(79, 124, 255, 0.12);
-    border: 1px solid rgba(79, 124, 255, 0.3);
+    background: rgba(255, 122, 80, 0.12);
+    border: 1px solid rgba(255, 122, 80, 0.3);
     border-radius: 10px;
     font-size: 11px;
-    color: #b8c6ff;
+    color: #ffcdb3;
     text-align: left;
     width: 100%;
     box-sizing: border-box;
@@ -458,7 +458,7 @@
     flex-shrink: 0;
     border: none;
     background: transparent;
-    color: #b8c6ff;
+    color: #ffcdb3;
     font-size: 16px;
     line-height: 1;
     cursor: pointer;
@@ -468,7 +468,7 @@
     margin-top: 2px;
     background: transparent;
     border: none;
-    color: #6b7280;
+    color: #85817a;
     font-size: 12px;
     cursor: pointer;
     text-decoration: underline;
@@ -483,7 +483,7 @@
     border-radius: 10px;
     font-size: 11px;
     line-height: 1.5;
-    color: #9aa0a8;
+    color: #a3a29e;
     text-align: left;
   }
 
@@ -592,12 +592,12 @@
 
       <div class="settings-section">
         <h3>Personal direction (Kua)</h3>
-        <p style="font-size:12px; color:#9aa0a8; margin:0;">Birth date and gender will live here once the Kua number profile ships.</p>
+        <p style="font-size:12px; color:#a3a29e; margin:0;">Birth date and gender will live here once the Kua number profile ships.</p>
       </div>
 
       <div class="settings-section">
         <h3>About</h3>
-        <p style="font-size:12px; color:#9aa0a8; margin:0;">Sleep Compass is a personal-exploration tool, not medical or scientific advice.</p>
+        <p style="font-size:12px; color:#a3a29e; margin:0;">Sleep Compass is a personal-exploration tool, not medical or scientific advice.</p>
       </div>
     </section>
 
@@ -956,7 +956,7 @@
 
     ratingBadge.textContent = result.rating;
     ratingBadge.style.background = color;
-    ratingBadge.style.color = '#111318';
+    ratingBadge.style.color = '#1a1a1a';
 
     ratingTitle.textContent = result.title;
     ratingOctant.textContent = `${OCTANT_LABELS[result.octant]} zone — ${result.score}% score`;
