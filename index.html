@@ -9,15 +9,33 @@
 <meta name="apple-mobile-web-app-title" content="Sleep Compass">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMjgiIGZpbGw9IiMxMTEzMTgiIHN0cm9rZT0iIzRmN2NmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIzMiwxMCAzOCwzMiAzMiw1NCAyNiwzMiIgZmlsbD0iIzRmN2NmZiIvPgogIDxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjQiIGZpbGw9IiNmNWY1ZjUiLz4KPC9zdmc+">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json" id="manifestLink">
 <title>Sleep Compass — V1</title>
 <script>
+// Runs before any CSS or the app module loads, so the theme is correct
+// from the very first frame -- no dark-to-light flash, and no lagging
+// dark sliver in the OS status/gesture bars while they wait to catch up
+// with app.js. Keep this bg map in sync with THEMES in config.js.
 (function () {
+  var BG_BY_THEME = {
+    ember: '#1a1a1a', terracotta: '#1c1a18', amber: '#14161c', sage: '#1b1f1c',
+    charcoal: '#1c1c1c', daylight: '#f5f1ec', lavender: '#1a181c', rose: '#1b1719',
+    sky: '#12161e', teal: '#12191a'
+  };
   try {
     var raw = localStorage.getItem('sleepCompassSettings');
+    var theme = null;
     if (raw) {
       var saved = JSON.parse(raw);
-      if (saved && saved.theme) document.documentElement.setAttribute('data-theme', saved.theme);
+      if (saved && saved.theme) theme = saved.theme;
+    }
+    if (theme) document.documentElement.setAttribute('data-theme', theme);
+    var bg = BG_BY_THEME[theme] || BG_BY_THEME.ember;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', bg);
+    if (theme === 'daylight') {
+      var link = document.getElementById('manifestLink');
+      if (link) link.setAttribute('href', 'manifest-light.json');
     }
   } catch (e) {}
 })();

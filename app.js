@@ -240,6 +240,15 @@ function applyThemeVisual(id) {
   const meta = document.querySelector('meta[name="theme-color"]');
   const theme = THEMES.find((t) => t.id === id) || THEMES[0];
   if (meta) meta.setAttribute('content', theme.bg);
+  // Swap the manifest reference too, so a fresh "Add to Home Screen" done
+  // while Daylight is active picks up a matching (light) splash screen
+  // and app-switcher tint instead of the app shell's dark default. This
+  // can't repaint an *already installed* icon's splash -- that's baked
+  // in at install time -- but it fixes it for any future install.
+  const manifestLink = document.getElementById('manifestLink');
+  if (manifestLink) {
+    manifestLink.setAttribute('href', id === 'daylight' ? 'manifest-light.json' : 'manifest.json');
+  }
   document.querySelectorAll('.theme-swatch').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.theme === id);
   });
