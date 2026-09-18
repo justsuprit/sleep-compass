@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#111318">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,22 +15,109 @@
   :root {
     color-scheme: dark;
   }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
   html {
     background: #111318;
   }
   body {
     margin: 0;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
     background: transparent;
     color: #eaeaea;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     text-align: center;
-    padding: 24px;
     box-sizing: border-box;
+  }
+
+  /* --- Tab-bar app shell --- */
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    width: 100%;
+  }
+  #screens {
+    flex: 1 1 auto;
+    min-height: 0;
+    position: relative;
+  }
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 10px 22px 4px;
+  }
+  .screen.active {
+    display: flex;
+  }
+  .screen-placeholder {
+    justify-content: center;
+    gap: 10px;
+  }
+  .screen-placeholder .placeholder-icon {
+    font-size: 40px;
+    opacity: 0.6;
+  }
+  .screen-placeholder h2 {
+    margin: 0;
+    font-size: 19px;
+    color: #f5f5f5;
+  }
+  .screen-placeholder p {
+    margin: 0;
+    max-width: 300px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #9aa0a8;
+  }
+  #tabbar {
+    flex: 0 0 auto;
+    display: flex;
+    background: #15171c;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 6px 2px;
+    cursor: pointer;
+  }
+  .tab-btn .tab-icon {
+    font-size: 19px;
+    line-height: 1;
+  }
+  .tab-btn.active {
+    color: #4f7cff;
+  }
+  .settings-section {
+    width: 100%;
+    text-align: left;
+    margin-top: 18px;
+  }
+  .settings-section h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    margin: 0 0 10px;
   }
   .ring-art-wrap {
     position: absolute;
@@ -73,18 +160,18 @@
     opacity: 1;
   }
   h1 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin: 0 0 2px;
     color: #f5f5f5;
   }
   p.subtitle {
-    margin-top: 0;
+    margin: 0 0 4px;
     color: #9aa0a8;
-    font-size: 14px;
+    font-size: 13px;
   }
   #startBtn {
-    margin-top: 24px;
+    margin-top: 16px;
     padding: 14px 28px;
     font-size: 16px;
     border-radius: 10px;
@@ -98,15 +185,24 @@
   }
   #compassWrap {
     display: none;
-    margin-top: 24px;
     flex-direction: column;
     align-items: center;
     width: 100%;
     max-width: 360px;
+    min-height: 0;
+    flex: 1 1 auto;
+    justify-content: space-between;
+  }
+  /* Every direct child keeps its natural size — only #rose is allowed to
+     resize (via its clamp()), so text never gets silently squeezed/clipped
+     by flexbox when the stack is tight on a short phone. */
+  #compassWrap > * {
+    flex-shrink: 0;
   }
   #rose {
-    width: 270px;
-    height: 270px;
+    width: clamp(170px, 40dvh, 270px);
+    height: clamp(170px, 40dvh, 270px);
+    flex: 0 0 auto;
     border-radius: 50%;
     border: 2px solid #3a3f4a;
     position: relative;
@@ -165,20 +261,20 @@
     z-index: 2;
   }
   #heading {
-    margin-top: 20px;
-    font-size: 40px;
+    margin-top: 4px;
+    font-size: 34px;
     font-weight: 700;
     letter-spacing: -1px;
     transition: color 0.2s ease;
   }
   #direction {
-    font-size: 18px;
+    font-size: 15px;
     color: #9aa0a8;
-    margin-top: 4px;
+    margin-top: 2px;
   }
   #status {
-    margin-top: 12px;
-    font-size: 13px;
+    margin-top: 8px;
+    font-size: 12px;
     color: #ff8a8a;
     max-width: 320px;
   }
@@ -186,7 +282,7 @@
   /* --- Step 3: rating profile UI --- */
   .segmented {
     display: flex;
-    margin-top: 28px;
+    margin-top: 8px;
     background: rgba(26, 29, 36, 0.6);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
@@ -224,40 +320,41 @@
     color: #6b7280;
   }
   .rating-card {
-    margin-top: 20px;
+    margin-top: 6px;
     width: 100%;
     background: rgba(26, 29, 36, 0.6);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
-    padding: 20px;
+    padding: 10px 14px;
     box-sizing: border-box;
+    overflow: hidden;
   }
   .rating-badge {
     display: inline-block;
-    padding: 6px 16px;
+    padding: 4px 14px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.5px;
     background: #3a3f4a;
     color: #eaeaea;
   }
   .rating-title {
-    margin-top: 12px;
-    font-size: 18px;
+    margin-top: 8px;
+    font-size: 16px;
     font-weight: 700;
     color: #f5f5f5;
   }
   .rating-octant {
     margin-top: 2px;
-    font-size: 13px;
+    font-size: 12px;
     color: #9aa0a8;
   }
   .score-bar {
-    margin-top: 14px;
-    height: 8px;
+    margin-top: 10px;
+    height: 6px;
     border-radius: 999px;
     background: #2a2e37;
     overflow: hidden;
@@ -269,14 +366,18 @@
     transition: width 0.3s ease, background 0.3s ease;
   }
   .rating-reason {
-    margin-top: 14px;
-    font-size: 13px;
-    line-height: 1.5;
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.4;
     color: #b6bac2;
     text-align: left;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .legend {
-    margin-top: 16px;
+    margin-top: 0;
     display: flex;
     justify-content: center;
     gap: 18px;
@@ -295,9 +396,9 @@
     flex-shrink: 0;
   }
   #restartBtn {
-    margin-top: 18px;
-    padding: 10px 22px;
-    font-size: 13px;
+    margin-top: 4px;
+    padding: 6px 18px;
+    font-size: 12px;
     font-weight: 600;
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -312,12 +413,12 @@
     display: none;
     align-items: center;
     gap: 10px;
-    margin-top: 14px;
-    padding: 10px 14px;
+    margin-top: 6px;
+    padding: 6px 10px;
     background: rgba(79, 124, 255, 0.12);
     border: 1px solid rgba(79, 124, 255, 0.3);
     border-radius: 10px;
-    font-size: 12px;
+    font-size: 11px;
     color: #b8c6ff;
     text-align: left;
     width: 100%;
@@ -339,7 +440,7 @@
     padding: 2px 4px;
   }
   .info-btn {
-    margin-top: 12px;
+    margin-top: 2px;
     background: transparent;
     border: none;
     color: #6b7280;
@@ -360,64 +461,129 @@
     color: #9aa0a8;
     text-align: left;
   }
+
+  /* Shorter phones (iPhone SE and similar, ~667px tall or less): the ring
+     is the single biggest element, so it does most of the work of making
+     everything else fit with no scrolling. Measured with Playwright at
+     375x667 to confirm this clears the overflow with room to spare. */
+  @media (max-height: 700px) {
+    #rose {
+      width: clamp(150px, 26dvh, 270px);
+      height: clamp(150px, 26dvh, 270px);
+    }
+    .rating-reason {
+      -webkit-line-clamp: 2;
+    }
+    .rating-card {
+      padding: 8px 12px;
+    }
+    .calibration-tip {
+      padding: 4px 8px;
+    }
+  }
 </style>
 </head>
 <body>
 
-  <h1>Sleep Compass</h1>
-  <p class="subtitle">Lay the phone flat, top edge pointing where your head will point</p>
+<div id="app">
+  <div id="screens">
 
-  <button id="startBtn">Enable Compass</button>
+    <section id="screen-compass" class="screen active" data-tab="compass">
+      <h1>Sleep Compass</h1>
+      <p class="subtitle">Lay the phone flat, top edge pointing where your head will point</p>
 
-  <div id="compassWrap">
-    <div id="rose">
-      <div class="ring-art-wrap">
-        <div id="artIsha" class="ring-art ring-art-isha active"></div>
-        <div id="artVastu" class="ring-art ring-art-vastu"></div>
+      <button id="startBtn">Enable Compass</button>
+
+      <div id="compassWrap">
+        <div id="rose">
+          <div class="ring-art-wrap">
+            <div id="artIsha" class="ring-art ring-art-isha active"></div>
+            <div id="artVastu" class="ring-art ring-art-vastu"></div>
+          </div>
+          <div id="dial"></div>
+          <div id="fixedMarker"></div>
+          <div id="centerDot"></div>
+        </div>
+        <div id="heading">--°</div>
+        <div id="direction">--</div>
+
+        <div id="calibrationTip" class="calibration-tip">
+          <span>If the heading looks off, wave your phone in a slow figure-8 to calibrate the compass.</span>
+          <button id="calibrationTipDismiss" aria-label="Dismiss">&times;</button>
+        </div>
+
+        <div id="profileToggle" class="segmented">
+          <button class="seg-btn active" data-profile="isha_sadhguru">Isha / Sadhguru</button>
+          <button class="seg-btn" data-profile="vastu_shastra">Classical Vastu</button>
+        </div>
+
+        <button id="infoBtn" class="info-btn" aria-expanded="false">Legend &amp; info</button>
+        <div id="infoPopover" class="info-popover" hidden>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Best</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#facc15"></span>Okay</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Avoid</div>
+          </div>
+          <p style="margin: 10px 0 0;">Isha/Sadhguru practices and Classical Vastu Shastra offer differing sleep-direction guidance — this app is for personal exploration, not medical or scientific advice.</p>
+        </div>
+
+        <div class="rating-card">
+          <div id="ratingBadge" class="rating-badge">--</div>
+          <div id="ratingTitle" class="rating-title">Enable the compass to see your rating</div>
+          <div id="ratingOctant" class="rating-octant">&nbsp;</div>
+          <div class="score-bar"><div id="ratingScoreFill" class="score-fill"></div></div>
+          <div id="ratingReason" class="rating-reason"></div>
+        </div>
+
+        <button id="restartBtn">Restart</button>
       </div>
-      <div id="dial"></div>
-      <div id="fixedMarker"></div>
-      <div id="centerDot"></div>
-    </div>
-    <div id="heading">--°</div>
-    <div id="direction">--</div>
 
-    <div class="legend">
-      <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Best</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#facc15"></span>Okay</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Avoid</div>
-    </div>
+      <div id="status"></div>
+    </section>
 
-    <div id="calibrationTip" class="calibration-tip">
-      <span>If the heading looks off, wave your phone in a slow figure-8 to calibrate the compass.</span>
-      <button id="calibrationTipDismiss" aria-label="Dismiss">&times;</button>
-    </div>
+    <section id="screen-couples" class="screen screen-placeholder" data-tab="couples">
+      <div class="placeholder-icon">🧭❤️</div>
+      <h2>Couples Mode</h2>
+      <p>Compare your Kua direction with your partner's and find a shared safe zone for both of you. Coming right after solo Kua numbers.</p>
+    </section>
 
-    <div id="profileToggle" class="segmented">
-      <button class="seg-btn active" data-profile="isha_sadhguru">Isha / Sadhguru</button>
-      <button class="seg-btn" data-profile="vastu_shastra">Classical Vastu</button>
-    </div>
+    <section id="screen-journal" class="screen screen-placeholder" data-tab="journal">
+      <div class="placeholder-icon">📓</div>
+      <h2>Sleep Journal</h2>
+      <p>Log how you slept each night and let AI look for patterns over time. Planned for V3.</p>
+    </section>
 
-    <button id="infoBtn" class="info-btn" aria-expanded="false">About this app</button>
-    <div id="infoPopover" class="info-popover" hidden>Isha/Sadhguru practices and Classical Vastu Shastra offer differing sleep-direction guidance — this app is for personal exploration, not medical or scientific advice.</div>
+    <section id="screen-settings" class="screen" data-tab="settings" style="overflow-y:auto;">
+      <h1 style="margin-top:6px;">Settings</h1>
 
-    <label class="checkbox-row">
-      <input type="checkbox" id="southernHemisphere">
-      Southern Hemisphere <span class="hint">(swaps N/S — Isha/Sadhguru only)</span>
-    </label>
+      <div class="settings-section">
+        <h3>Location</h3>
+        <label class="checkbox-row">
+          <input type="checkbox" id="southernHemisphere">
+          Southern Hemisphere <span class="hint">(swaps N/S — Isha/Sadhguru only)</span>
+        </label>
+      </div>
 
-    <div class="rating-card">
-      <div id="ratingBadge" class="rating-badge">--</div>
-      <div id="ratingTitle" class="rating-title">Enable the compass to see your rating</div>
-      <div id="ratingOctant" class="rating-octant">&nbsp;</div>
-      <div class="score-bar"><div id="ratingScoreFill" class="score-fill"></div></div>
-      <div id="ratingReason" class="rating-reason"></div>
-    </div>
+      <div class="settings-section">
+        <h3>Personal direction (Kua)</h3>
+        <p style="font-size:12px; color:#9aa0a8; margin:0;">Birth date and gender will live here once the Kua number profile ships.</p>
+      </div>
 
-    <button id="restartBtn">Restart</button>
+      <div class="settings-section">
+        <h3>About</h3>
+        <p style="font-size:12px; color:#9aa0a8; margin:0;">Sleep Compass is a personal-exploration tool, not medical or scientific advice.</p>
+      </div>
+    </section>
+
   </div>
 
-  <div id="status"></div>
+  <nav id="tabbar">
+    <button class="tab-btn active" data-tab="compass"><span class="tab-icon">🧭</span>Compass</button>
+    <button class="tab-btn" data-tab="couples"><span class="tab-icon">❤️</span>Couples</button>
+    <button class="tab-btn" data-tab="journal"><span class="tab-icon">📓</span>Journal</button>
+    <button class="tab-btn" data-tab="settings"><span class="tab-icon">⚙️</span>Settings</button>
+  </nav>
+</div>
 
 <script>
   // ============================================================
@@ -431,49 +597,71 @@
     { deg: 180, label: 'S' },
     { deg: 270, label: 'W' }
   ];
-  const vastuPetals = [];
-  for (let deg = 0; deg < 360; deg += 22.5) {
-    const rad = (deg - 90) * (Math.PI / 180);
-    const tickRadius = 118; // near the 135px ring radius, leaves clear margin from the border
-    const tx = 135 + tickRadius * Math.cos(rad);
-    const ty = 135 + tickRadius * Math.sin(rad);
 
-    // Vastu mandala petal (only at the 8 principal points) — appended first so
-    // it paints behind the tick, and rotates rigidly with it since both live
-    // inside #dial and share the same tick position/orientation.
-    if (deg % 45 === 0) {
-      const petal = document.createElement('div');
-      petal.className = 'vastu-petal';
-      petal.style.left = `${tx}px`;
-      petal.style.top = `${ty}px`;
-      petal.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
-      dial.appendChild(petal);
-      vastuPetals.push(petal);
+  // The ring's on-screen size now flexes with viewport height (see #rose's
+  // clamp() in CSS) so the whole Compass tab fits one screen with no
+  // scrolling. Ticks/petals/labels are positioned with trig math relative to
+  // the ring's *actual measured* center and radius (not a hardcoded 135px),
+  // scaled proportionally from the original 270px design (radii 118/92 out
+  // of a 135px center = ~0.874 / ~0.681), so the ring redraws correctly at
+  // any size. buildRing() is re-run on resize/orientation change in case the
+  // available height changes (e.g. rotating the phone, or the browser chrome
+  // showing/hiding).
+  let vastuPetals = [];
+  let cardinalLabels = [];
+
+  function buildRing() {
+    dial.querySelectorAll('.tick, .vastu-petal, .label').forEach((el) => el.remove());
+    vastuPetals = [];
+    cardinalLabels = [];
+
+    const size = rose.getBoundingClientRect().width || 270;
+    const centerPx = size / 2;
+    const tickRadius = centerPx * (118 / 135);
+    const labelRadius = centerPx * (92 / 135);
+
+    for (let deg = 0; deg < 360; deg += 22.5) {
+      const rad = (deg - 90) * (Math.PI / 180);
+      const tx = centerPx + tickRadius * Math.cos(rad);
+      const ty = centerPx + tickRadius * Math.sin(rad);
+
+      // Vastu mandala petal (only at the 8 principal points) — appended first
+      // so it paints behind the tick, and rotates rigidly with it since both
+      // live inside #dial and share the same tick position/orientation.
+      if (deg % 45 === 0) {
+        const petal = document.createElement('div');
+        petal.className = 'vastu-petal';
+        petal.style.left = `${tx}px`;
+        petal.style.top = `${ty}px`;
+        petal.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
+        if (currentProfile === 'vastu_shastra') petal.classList.add('active');
+        dial.appendChild(petal);
+        vastuPetals.push(petal);
+      }
+
+      const tick = document.createElement('div');
+      const isMajor = deg % 90 === 0;
+      tick.className = 'tick' + (isMajor ? ' major' : '') + (deg === 0 ? ' tick-north' : '');
+      tick.style.left = `${tx}px`;
+      tick.style.top = `${ty}px`;
+      tick.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
+      dial.appendChild(tick);
     }
 
-    const tick = document.createElement('div');
-    const isMajor = deg % 90 === 0;
-    tick.className = 'tick' + (isMajor ? ' major' : '') + (deg === 0 ? ' tick-north' : '');
-    tick.style.left = `${tx}px`;
-    tick.style.top = `${ty}px`;
-    tick.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
-    dial.appendChild(tick);
+    cardinals.forEach(({ deg, label }) => {
+      const el = document.createElement('div');
+      el.className = 'label';
+      el.textContent = label;
+      const rad = (deg - 90) * (Math.PI / 180);
+      const x = centerPx + labelRadius * Math.cos(rad);
+      const y = centerPx + labelRadius * Math.sin(rad);
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.transform = `translate(-50%, -50%) rotate(${lastHeadingDeg !== null ? Math.round(lastHeadingDeg) : 0}deg)`;
+      dial.appendChild(el);
+      cardinalLabels.push(el);
+    });
   }
-  const cardinalLabels = [];
-  cardinals.forEach(({ deg, label }) => {
-    const el = document.createElement('div');
-    el.className = 'label';
-    el.textContent = label;
-    const rad = (deg - 90) * (Math.PI / 180);
-    const radius = 92; // pulled in from the ticks so letters don't sit flush against them
-    const x = 135 + radius * Math.cos(rad);
-    const y = 135 + radius * Math.sin(rad);
-    el.style.left = `${x}px`;
-    el.style.top = `${y}px`;
-    el.style.transform = 'translate(-50%, -50%)';
-    dial.appendChild(el);
-    cardinalLabels.push(el);
-  });
 
   const startBtn = document.getElementById('startBtn');
   const compassWrap = document.getElementById('compassWrap');
@@ -680,6 +868,20 @@
   });
   southernHemisphereInput.checked = southernHemisphere;
   updateBackground();
+  buildRing();
+
+  // Rebuild the ring's ticks/petals/labels if its measured size changes —
+  // e.g. rotating the phone, or a shorter/taller browser chrome state —
+  // then re-apply whatever heading we last had so nothing visually jumps.
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      buildRing();
+      updateBackground();
+      if (lastHeadingDeg !== null) updateHeading(lastHeadingDeg);
+    }, 150);
+  });
 
   function updateRatingDisplay(deg) {
     lastHeadingDeg = deg;
@@ -862,6 +1064,30 @@
       navigator.serviceWorker.register('sw.js').catch(() => {});
     });
   }
+
+  // ============================================================
+  // Tab bar — pure show/hide of pre-built screens. The compass sensor
+  // listener (registered in startCompass, above) is attached to `window`
+  // once and keeps running no matter which tab is visible, so switching
+  // tabs never re-asks for permission or restarts anything.
+  // ============================================================
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const screenEls = document.querySelectorAll('.screen');
+  tabButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      screenEls.forEach((s) => s.classList.toggle('active', s.id === `screen-${target}`));
+      tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
+      // The ring's clamp()-based size can differ once the browser has
+      // settled after the initial paint (address-bar collapse, etc.) —
+      // cheap to recompute again the first time you land on Compass.
+      if (target === 'compass') {
+        buildRing();
+        updateBackground();
+        if (lastHeadingDeg !== null) updateHeading(lastHeadingDeg);
+      }
+    });
+  });
 </script>
 
 </body>
