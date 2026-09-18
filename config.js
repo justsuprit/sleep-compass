@@ -90,3 +90,61 @@ export const THEMES = [
 // localStorage keys, kept here so app.js never hardcodes a magic string.
 export const SETTINGS_KEY = 'sleepCompassSettings';
 export const CALIBRATION_TIP_KEY = 'sleepCompassCalibrationTipDismissed';
+
+// ============================================================
+// Kua (Eight Mansions / Ba Zhai) data — verified against multiple
+// published feng shui references (Sept 2026): the classical two-branch
+// formula (fengshuinexus.com, modernhousenumbers.com) and the full
+// 8-direction matrix (fengshuimall.com, cross-checked row-by-row against
+// wofs.com's live calculator and internal East/West group consistency).
+// The formula itself lives in utils.js (calculateKuaNumber) since it's a
+// pure function with no dependency on the tables below.
+// ============================================================
+
+// Meta for each of the 8 "stars" a direction can carry for a given Kua
+// number — four auspicious (positive `value`), four inauspicious
+// (negative `value`). `value` is kept around for the future Couples Mode
+// "Disaster Invariant" (any -3/-4 for either partner disqualifies that
+// direction outright).
+export const KUA_STAR_INFO = {
+  SHENG_CHI:  { rating: 'GREEN',  score: 100, value: 4,  title: 'Best — Sheng Chi',
+                reason: 'Your #1 personal direction (Generating Breath) — the strongest of the four auspicious stars, linked to vitality and overall wellbeing.' },
+  TIEN_YI:    { rating: 'GREEN',  score: 80,  value: 3,  title: 'Very Good — Tien Yi',
+                reason: 'Heavenly Doctor — supports health and recovery; a strong, reliable direction to sleep toward.' },
+  NIEN_YEN:   { rating: 'YELLOW', score: 65,  value: 2,  title: 'Good — Nien Yen',
+                reason: 'Longevity — favors relationships and steady long-term wellbeing.' },
+  FU_WEI:     { rating: 'YELLOW', score: 55,  value: 1,  title: 'Mild — Fu Wei',
+                reason: 'Stability — the mildest of the four good directions; calm, but not a strong boost.' },
+  HO_HAI:     { rating: 'YELLOW', score: 35,  value: -1, title: 'Mildly Unfavorable — Ho Hai',
+                reason: 'Accidents & Mishaps — the mildest of the four inauspicious stars; minor setbacks.' },
+  WU_KUEI:    { rating: 'RED',    score: 20,  value: -2, title: 'Unfavorable — Wu Kuei',
+                reason: 'Five Ghosts — linked to arguments, financial loss, and disrupted sleep.' },
+  LUI_SHA:    { rating: 'RED',    score: 10,  value: -3, title: 'Strongly Unfavorable — Lui Sha',
+                reason: 'Six Killings — linked to setbacks and illness; best avoided for sleep.' },
+  CHUEH_MING: { rating: 'RED',    score: 0,   value: -4, title: 'Strictly Avoid — Chueh Ming',
+                reason: 'Total Loss — the most severe of the eight directions; classically the one to avoid entirely.' }
+};
+
+// Which star lands on which compass octant, for each Kua number. Kua 5
+// has no row of its own — by convention a calculated 5 becomes 2 for men
+// and 8 for women (handled in calculateKuaNumber). East group (1,3,4,9)
+// always carries its 4 good stars on {N,S,E,SE}; West group (2,6,7,8)
+// carries them on {W,NW,SW,NE} — the mirror image.
+export const KUA_DIRECTIONS = {
+  1: { group: 'east', N: 'FU_WEI',     NE: 'WU_KUEI',    E: 'TIEN_YI',    SE: 'SHENG_CHI',
+                       S: 'NIEN_YEN',  SW: 'CHUEH_MING', W: 'HO_HAI',     NW: 'LUI_SHA' },
+  2: { group: 'west', N: 'CHUEH_MING', NE: 'SHENG_CHI',  E: 'HO_HAI',     SE: 'WU_KUEI',
+                       S: 'LUI_SHA',   SW: 'FU_WEI',      W: 'TIEN_YI',    NW: 'NIEN_YEN' },
+  3: { group: 'east', N: 'TIEN_YI',    NE: 'LUI_SHA',     E: 'FU_WEI',     SE: 'NIEN_YEN',
+                       S: 'SHENG_CHI', SW: 'HO_HAI',       W: 'CHUEH_MING', NW: 'WU_KUEI' },
+  4: { group: 'east', N: 'SHENG_CHI',  NE: 'CHUEH_MING',  E: 'NIEN_YEN',   SE: 'FU_WEI',
+                       S: 'TIEN_YI',   SW: 'WU_KUEI',      W: 'LUI_SHA',    NW: 'HO_HAI' },
+  6: { group: 'west', N: 'LUI_SHA',    NE: 'TIEN_YI',     E: 'WU_KUEI',    SE: 'HO_HAI',
+                       S: 'CHUEH_MING',SW: 'NIEN_YEN',     W: 'SHENG_CHI',  NW: 'FU_WEI' },
+  7: { group: 'west', N: 'HO_HAI',     NE: 'NIEN_YEN',    E: 'CHUEH_MING', SE: 'LUI_SHA',
+                       S: 'WU_KUEI',   SW: 'TIEN_YI',      W: 'FU_WEI',     NW: 'SHENG_CHI' },
+  8: { group: 'west', N: 'WU_KUEI',    NE: 'FU_WEI',      E: 'LUI_SHA',    SE: 'CHUEH_MING',
+                       S: 'HO_HAI',    SW: 'SHENG_CHI',    W: 'NIEN_YEN',   NW: 'TIEN_YI' },
+  9: { group: 'east', N: 'NIEN_YEN',   NE: 'HO_HAI',      E: 'SHENG_CHI',  SE: 'TIEN_YI',
+                       S: 'FU_WEI',    SW: 'LUI_SHA',      W: 'WU_KUEI',    NW: 'CHUEH_MING' }
+};

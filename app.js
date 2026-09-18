@@ -4,8 +4,8 @@
 // ties them together into the actual running app.
 // ============================================================
 
-import { RATING_COLORS, OCTANT_LABELS, PROFILES, THEMES, SETTINGS_KEY, CALIBRATION_TIP_KEY } from './config.js';
-import { hexToRgba, degToCompassPoint, headingToOctant, shortestDelta } from './utils.js';
+import { RATING_COLORS, OCTANT_LABELS, PROFILES, THEMES, SETTINGS_KEY, CALIBRATION_TIP_KEY, KUA_DIRECTIONS, KUA_STAR_INFO } from './config.js';
+import { hexToRgba, degToCompassPoint, headingToOctant, shortestDelta, calculateKuaNumber } from './utils.js';
 
 // ============================================================
 // Step 2: compass rose UI setup (ticks, cardinal labels)
@@ -94,11 +94,39 @@ const statusEl = document.getElementById('status');
 // Step 3: sleep-direction rating engine
 // ============================================================
 
+// Bridges config.js's KUA_DIRECTIONS (kua number -> octant -> star key)
+// and KUA_STAR_INFO (star key -> rating/score/title/reason) into the same
+// { octant-keyed rules } shape PROFILES entries use, so evaluateHeading
+// below can treat "My Kua" like any other profile.
+function getKuaRules(kuaNumber) {
+  const directions = KUA_DIRECTIONS[kuaNumber];
+  const rules = {};
+  for (const octant of Object.keys(directions)) {
+    if (octant === 'group') continue;
+    rules[octant] = KUA_STAR_INFO[directions[octant]];
+  }
+  return rules;
+}
+
 // Public evaluation function — given a heading and a profile key,
 // returns { octant, rating, score, title, reason }.
 function evaluateHeading(headingDeg, profileKey, southernHemisphere) {
-  const profile = PROFILES[profileKey];
   const octant = headingToOctant(headingDeg);
+
+  if (profileKey === 'kua_direction') {
+    if (!currentKuaNumber) {
+      return {
+        octant,
+        rating: 'YELLOW',
+        score: 0,
+        title: 'Add your birth details',
+        reason: 'Enter your birth date and gender in Settings to see your personal Kua direction.'
+      };
+    }
+    return { octant, ...getKuaRules(currentKuaNumber)[octant] };
+  }
+
+  const profile = PROFILES[profileKey];
   let effectiveOctant = octant;
   if (southernHemisphere && profile.hemisphereSwap && profile.hemisphereSwap[octant]) {
     effectiveOctant = profile.hemisphereSwap[octant];
@@ -125,6 +153,9 @@ let currentTheme = 'ember';
 let lastHeadingDeg = null;
 let lastRating = null;
 let calibrationTipShown = false;
+let kuaBirthDate = '';
+let kuaGender = '';
+let currentKuaNumber = null;
 
 const calibrationTip = document.getElementById('calibrationTip');
 const calibrationTipDismiss = document.getElementById('calibrationTipDismiss');
@@ -170,9 +201,11 @@ function loadSettings() {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return;
     const saved = JSON.parse(raw);
-    if (saved.profile && PROFILES[saved.profile]) currentProfile = saved.profile;
+    if (saved.profile && (PROFILES[saved.profile] || saved.profile === 'kua_direction')) currentProfile = saved.profile;
     if (typeof saved.southernHemisphere === 'boolean') southernHemisphere = saved.southernHemisphere;
     if (saved.theme && THEMES.some((t) => t.id === saved.theme)) currentTheme = saved.theme;
+    if (typeof saved.kuaBirthDate === 'string') kuaBirthDate = saved.kuaBirthDate;
+    if (saved.kuaGender === 'male' || saved.kuaGender === 'female') kuaGender = saved.kuaGender;
   } catch (e) {
     // fall back to defaults
   }
@@ -180,7 +213,13 @@ function loadSettings() {
 
 function saveSettings() {
   try {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ profile: currentProfile, southernHemisphere, theme: currentTheme }));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      profile: currentProfile,
+      southernHemisphere,
+      theme: currentTheme,
+      kuaBirthDate,
+      kuaGender
+    }));
   } catch (e) {
     // ignore — not required for the app to work
   }
@@ -223,13 +262,52 @@ function updateBackground() {
   vastuPetals.forEach(p => p.classList.toggle('active', currentProfile === 'vastu_shastra'));
 }
 
+// Kua (personal direction) Settings wiring — birth date + gender feed
+// calculateKuaNumber(), and the result re-renders the rating card live
+// if "My Kua" happens to be the active profile already.
+const kuaBirthDateInput = document.getElementById('kuaBirthDate');
+const kuaGenderToggle = document.getElementById('kuaGenderToggle');
+const kuaResultEl = document.getElementById('kuaResult');
+
+function updateKuaResult() {
+  currentKuaNumber = (kuaBirthDate && kuaGender) ? calculateKuaNumber(kuaBirthDate, kuaGender) : null;
+  if (currentKuaNumber) {
+    const group = KUA_DIRECTIONS[currentKuaNumber].group === 'east' ? 'East group' : 'West group';
+    kuaResultEl.textContent = `Your Kua number: ${currentKuaNumber} (${group})`;
+  } else {
+    kuaResultEl.textContent = 'Enter your birth date and gender above to calculate your Kua number.';
+  }
+  if (currentProfile === 'kua_direction' && lastHeadingDeg !== null) updateRatingDisplay(lastHeadingDeg);
+}
+
+kuaBirthDateInput.addEventListener('change', (e) => {
+  kuaBirthDate = e.target.value;
+  saveSettings();
+  updateKuaResult();
+});
+
+kuaGenderToggle.querySelectorAll('.seg-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    kuaGenderToggle.querySelectorAll('.seg-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    kuaGender = btn.dataset.gender;
+    saveSettings();
+    updateKuaResult();
+  });
+});
+
 // Apply whatever was saved last time, before we render anything.
 loadSettings();
 applyThemeVisual(currentTheme);
-document.querySelectorAll('.seg-btn').forEach((btn) => {
+document.querySelectorAll('#profileToggle .seg-btn').forEach((btn) => {
   btn.classList.toggle('active', btn.dataset.profile === currentProfile);
 });
 southernHemisphereInput.checked = southernHemisphere;
+kuaBirthDateInput.value = kuaBirthDate;
+kuaGenderToggle.querySelectorAll('.seg-btn').forEach((btn) => {
+  btn.classList.toggle('active', btn.dataset.gender === kuaGender);
+});
+updateKuaResult();
 updateBackground();
 buildRing();
 
@@ -274,9 +352,9 @@ function updateRatingDisplay(deg) {
   rose.style.boxShadow = `0 0 22px 3px ${hexToRgba(color, 0.35)}, inset 0 0 34px ${hexToRgba(color, 0.14)}`;
 }
 
-document.querySelectorAll('.seg-btn').forEach((btn) => {
+document.querySelectorAll('#profileToggle .seg-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.seg-btn').forEach((b) => b.classList.remove('active'));
+    document.querySelectorAll('#profileToggle .seg-btn').forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
     currentProfile = btn.dataset.profile;
     updateBackground();

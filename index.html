@@ -54,8 +54,9 @@
         </div>
 
         <div id="profileToggle" class="segmented">
-          <button class="seg-btn active" data-profile="isha_sadhguru">Isha / Sadhguru</button>
-          <button class="seg-btn" data-profile="vastu_shastra">Classical Vastu</button>
+          <button class="seg-btn active" data-profile="isha_sadhguru">Isha</button>
+          <button class="seg-btn" data-profile="vastu_shastra">Vastu</button>
+          <button class="seg-btn" data-profile="kua_direction">My Kua</button>
         </div>
 
         <button id="infoBtn" class="info-btn" aria-expanded="false">Legend &amp; info</button>
@@ -112,7 +113,15 @@
 
       <div class="settings-section">
         <h3>Personal direction (Kua)</h3>
-        <p style="font-size:12px; color:#a3a29e; margin:0;">Birth date and gender will live here once the Kua number profile ships.</p>
+        <label class="field-row">
+          Birth date
+          <input type="date" id="kuaBirthDate">
+        </label>
+        <div class="segmented" id="kuaGenderToggle" style="margin-top:10px;">
+          <button class="seg-btn" type="button" data-gender="male">Male</button>
+          <button class="seg-btn" type="button" data-gender="female">Female</button>
+        </div>
+        <p id="kuaResult" class="hint-text">Enter your birth date and gender above to calculate your Kua number.</p>
       </div>
 
       <div class="settings-section">
