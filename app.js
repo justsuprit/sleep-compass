@@ -466,11 +466,25 @@ renderCouplesResults();
 updateBackground();
 buildRing();
 
-// Rebuild the ring's ticks/petals/labels if its measured size changes —
-// e.g. rotating the phone, or a shorter/taller browser chrome state —
-// then re-apply whatever heading we last had so nothing visually jumps.
+// Rebuild the ring's ticks/petals/labels whenever #rose's actual on-screen
+// size changes, then re-apply whatever heading we last had so nothing
+// visually jumps. A ResizeObserver (rather than only a window 'resize'
+// listener) is what makes this reliable: buildRing() runs once at load
+// time from app.js's top-level code, but at that moment #compassWrap is
+// still display:none (it only becomes visible once startCompass() runs
+// after the user taps "Enable Compass"), so #rose measures 0px wide and
+// buildRing() falls back to its 270px default. On phones whose clamp()'d
+// ring size happens to land near 270px that fallback looked fine, which
+// is exactly why this only ever showed up as ticks/cardinal labels
+// drifting outside the ring on shorter phones (iPhone SE, small Android)
+// where the real size clamps much smaller -- a "looks fine on my phone,
+// broken on my partner's" bug. A ResizeObserver watches #rose itself, so
+// it fires the moment the ring's real size becomes known (display:none ->
+// flex), on window resize/orientation change, and on any CSS media-query
+// breakpoint that changes the clamp() output -- covering all of those
+// with one mechanism instead of hoping window 'resize' happens to coincide.
 let resizeTimer = null;
-window.addEventListener('resize', () => {
+const roseResizeObserver = new ResizeObserver(() => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
     buildRing();
@@ -478,6 +492,7 @@ window.addEventListener('resize', () => {
     if (lastHeadingDeg !== null) updateHeading(lastHeadingDeg);
   }, 150);
 });
+roseResizeObserver.observe(rose);
 
 function updateRatingDisplay(deg) {
   lastHeadingDeg = deg;
