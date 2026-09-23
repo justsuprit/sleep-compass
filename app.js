@@ -292,6 +292,11 @@ function updateBackground() {
   artIsha.classList.toggle('active', currentProfile === 'isha_sadhguru');
   artVastu.classList.toggle('active', currentProfile === 'vastu_shastra');
   vastuPetals.forEach(p => p.classList.toggle('active', currentProfile === 'vastu_shastra'));
+  // Isha's Om sits dead-center of the dial in this view, so the orange
+  // centerDot calibration marker (which lives at that same literal
+  // center) is hidden only while Isha is active -- Vastu and My Kua
+  // keep it visible at the midpoint exactly as before.
+  rose.classList.toggle('isha-active', currentProfile === 'isha_sadhguru');
 }
 
 // Kua (personal direction) Settings wiring — birth date + gender feed
