@@ -19,15 +19,18 @@ const cardinals = [
   { deg: 270, label: 'W' }
 ];
 
-// The ring's on-screen size now flexes with viewport height (see #rose's
-// clamp() in styles.css) so the whole Compass tab fits one screen with no
-// scrolling. Ticks/petals/labels are positioned with trig math relative to
-// the ring's *actual measured* center and radius (not a hardcoded 135px),
-// scaled proportionally from the original 270px design (radii 118/92 out
-// of a 135px center = ~0.874 / ~0.681), so the ring redraws correctly at
-// any size. buildRing() is re-run on resize/orientation change in case the
-// available height changes (e.g. rotating the phone, or the browser chrome
-// showing/hiding).
+// The ring's on-screen size is computed in JS (see sizeRing() below) so it
+// actually fills whatever room is left over in #compassWrap, rather than
+// guessing a fixed percentage of viewport height in CSS -- a pure
+// height-based guess can't know that a narrow phone wraps the rating
+// card's text onto an extra line, which needs more vertical room and
+// leaves less for the ring than the same-height-but-wider phone. Ticks/
+// petals/labels are positioned with trig math relative to the ring's
+// *actual measured* center and radius (not a hardcoded 135px), scaled
+// proportionally from the original 270px design (radii 118/92 out of a
+// 135px center = ~0.874 / ~0.681), so the ring redraws correctly at any
+// size. Both are re-run together (see refreshRing()) on resize/orientation
+// change in case the available space changes.
 let vastuPetals = [];
 let cardinalLabels = [];
 
@@ -464,35 +467,67 @@ updateKuaResult();
 partnerKuaNumber = (partnerBirthDate && partnerGender) ? calculateKuaNumber(partnerBirthDate, partnerGender) : null;
 renderCouplesResults();
 updateBackground();
-buildRing();
 
-// Rebuild the ring's ticks/petals/labels whenever #rose's actual on-screen
-// size changes, then re-apply whatever heading we last had so nothing
-// visually jumps. A ResizeObserver (rather than only a window 'resize'
-// listener) is what makes this reliable: buildRing() runs once at load
-// time from app.js's top-level code, but at that moment #compassWrap is
-// still display:none (it only becomes visible once startCompass() runs
-// after the user taps "Enable Compass"), so #rose measures 0px wide and
-// buildRing() falls back to its 270px default. On phones whose clamp()'d
-// ring size happens to land near 270px that fallback looked fine, which
-// is exactly why this only ever showed up as ticks/cardinal labels
-// drifting outside the ring on shorter phones (iPhone SE, small Android)
-// where the real size clamps much smaller -- a "looks fine on my phone,
-// broken on my partner's" bug. A ResizeObserver watches #rose itself, so
-// it fires the moment the ring's real size becomes known (display:none ->
-// flex), on window resize/orientation change, and on any CSS media-query
-// breakpoint that changes the clamp() output -- covering all of those
-// with one mechanism instead of hoping window 'resize' happens to coincide.
+// Give the ring however much vertical room is actually left over in
+// #compassWrap once its other children (heading readout, profile toggle,
+// legend link, rating card, restart button) have taken what they need --
+// instead of guessing a fixed percentage of viewport height in CSS. A
+// height-only guess can't know that a narrower phone wraps the rating
+// card's reason text onto an extra line (more height used there) or that
+// a longer rating title wraps to two lines -- it would leave the same
+// "40% of height" ring size regardless, either overflowing the screen or
+// (as the old fixed 270px ceiling did) never growing past a size tuned
+// for one phone. This measures the real thing instead of guessing at it.
+//
+// #compassWrap's own outer height is fixed by the flex layout above it
+// (flex-grow:1 inside #screen, which is sized by the viewport) and does
+// NOT depend on #rose's size, so this measurement is stable and setting
+// #rose's size here can't trigger a feedback loop through its own parent.
+function sizeRing() {
+  const siblings = Array.from(compassWrap.children).filter((el) => el !== rose);
+  const usedHeight = siblings.reduce((sum, el) => sum + el.offsetHeight, 0);
+  // A little breathing room between each pair of stacked elements, so
+  // space-between still has *something* to distribute instead of every
+  // gap collapsing to 0 because the ring claimed 100% of the leftover space.
+  const gapBudget = 8 * siblings.length;
+  const availableHeight = compassWrap.clientHeight - usedHeight - gapBudget;
+  const availableWidth = compassWrap.clientWidth - 8;
+  const size = Math.max(150, Math.min(availableHeight, availableWidth, 380));
+  rose.style.width = `${size}px`;
+  rose.style.height = `${size}px`;
+}
+
+function refreshRing() {
+  sizeRing();
+  buildRing();
+}
+refreshRing();
+
+// Re-run sizing/ticks whenever #compassWrap's actual on-screen size
+// changes, then re-apply whatever heading we last had so nothing visually
+// jumps. A ResizeObserver (rather than only a window 'resize' listener) is
+// what makes this reliable: refreshRing() runs once at load time from
+// app.js's top-level code, but at that moment #compassWrap is still
+// display:none (it only becomes visible once startCompass() runs after the
+// user taps "Enable Compass"), so it measures 0px and sizeRing() falls
+// back to its 150px floor. Observing #compassWrap (not #rose) is what
+// avoids a feedback loop here -- #compassWrap's size doesn't depend on
+// #rose's, but #rose's size is set FROM #compassWrap's measurements, so if
+// this instead watched #rose it would re-trigger itself every time it set
+// #rose's size. This one observer fires on that display:none -> flex
+// reveal, on window resize/orientation change, and on any CSS media-query
+// breakpoint that changes other children's sizes -- one mechanism instead
+// of hoping window 'resize' happens to coincide with all of those.
 let resizeTimer = null;
-const roseResizeObserver = new ResizeObserver(() => {
+const compassWrapResizeObserver = new ResizeObserver(() => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
-    buildRing();
+    refreshRing();
     updateBackground();
     if (lastHeadingDeg !== null) updateHeading(lastHeadingDeg);
   }, 150);
 });
-roseResizeObserver.observe(rose);
+compassWrapResizeObserver.observe(compassWrap);
 
 function updateRatingDisplay(deg) {
   lastHeadingDeg = deg;

@@ -468,6 +468,12 @@
     flex-shrink: 0;
   }
   #rose {
+    /* This is only the pre-JS fallback size (the instant before app.js's
+       sizeRing() runs, or in the unlikely event it doesn't) -- the real
+       size is computed in JS from the actual measured leftover space in
+       #compassWrap, because a pure CSS height-percentage guess can't know
+       how tall the rating card grew from text wrapping on a narrow phone.
+       See sizeRing() in app.js for why and how. */
     width: clamp(170px, 40dvh, 270px);
     height: clamp(170px, 40dvh, 270px);
     margin-top: 16px;
@@ -817,12 +823,15 @@
 
   /* Shorter phones (iPhone SE and similar, ~667px tall or less): the ring
      is the single biggest element, so it does most of the work of making
-     everything else fit with no scrolling. Measured with Playwright at
-     375x667 to confirm this clears the overflow with room to spare. */
+     everything else fit with no scrolling. app.js's sizeRing() already
+     computes the ring's actual size from real measurements at any height,
+     so it doesn't need a separate override here -- just reclaim the
+     couple of fixed px this breakpoint can still save (margin, and a
+     tighter rating card) since JS can't shrink the *other* elements for
+     it. Measured with Playwright at 375x667 to confirm this clears the
+     overflow with room to spare. */
   @media (max-height: 700px) {
     #rose {
-      width: clamp(150px, 26dvh, 270px);
-      height: clamp(150px, 26dvh, 270px);
       margin-top: 1px;
     }
     .rating-reason {
